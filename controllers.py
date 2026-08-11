@@ -16,17 +16,26 @@ COMMISSION_RATE = 0.10  # 10% commission
 def execute_query(query, params=(), fetch=False, fetchone=False):
     """Utility to execute queries safely across MySQL and SQLite."""
     try:
-        if fetch:
+        if fetch == "lastrowid":
+            return db_engine.execute_query(query, params, fetch="lastrowid")
+        elif fetch is True or fetch == "all":
             res = db_engine.execute_query(query, params, fetch="all")
-            return [tuple(r.values()) for r in res] if res else []
-        elif fetchone:
+            if isinstance(res, list):
+                return [tuple(r.values()) for r in res]
+            return res
+        elif fetchone or fetch == "one":
             res = db_engine.execute_query(query, params, fetch="one")
-            return tuple(res.values()) if res else None
+            if isinstance(res, dict):
+                return tuple(res.values())
+            return res
         else:
+            q_upper = query.strip().upper()
+            if q_upper.startswith("INSERT"):
+                return db_engine.execute_query(query, params, fetch="lastrowid")
             return db_engine.execute_query(query, params, fetch="rowcount")
     except Exception as e:
         print(f"Database Error: {e}")
-        if fetch or fetchone:
+        if fetch is True or fetchone:
             return None if fetchone else []
         return -1
 
@@ -218,12 +227,36 @@ def get_my_listings(owner_id):
 
 # --- RENTAL REQUESTS ---
 
+VALID_RENTAL_PURPOSES = {
+    'Field Trip', 'Final Year Project', 'Laboratory Session', 'Research', 'Presentation', 'Personal Use'
+}
+
+def normalize_purpose(purpose_str):
+    if not purpose_str:
+        return 'Field Trip'
+    p = str(purpose_str).strip()
+    if p in VALID_RENTAL_PURPOSES:
+        return p
+    low = p.lower()
+    if 'survey' in low or 'field' in low or 'trip' in low:
+        return 'Field Trip'
+    if 'lab' in low or 'experiment' in low or 'assignment' in low:
+        return 'Laboratory Session'
+    if 'project' in low:
+        return 'Final Year Project'
+    if 'research' in low:
+        return 'Research'
+    if 'present' in low or 'seminar' in low:
+        return 'Presentation'
+    return 'Personal Use'
+
 def submit_rental_request(listing_id, borrower_id, start_date, end_date, purpose, notes):
+    clean_purpose = normalize_purpose(purpose)
     query = """
     INSERT INTO rental_requests (listing_id, borrower_id, rent_start_date, rent_end_date, rental_purpose, status, notes)
     VALUES (?, ?, ?, ?, ?, 'Pending', ?);
     """
-    return execute_query(query, (listing_id, borrower_id, start_date, end_date, purpose, notes))
+    return execute_query(query, (listing_id, borrower_id, start_date, end_date, clean_purpose, notes), fetch="lastrowid")
 
 def get_incoming_requests(owner_id):
     query = """

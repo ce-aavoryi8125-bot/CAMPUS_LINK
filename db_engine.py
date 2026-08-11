@@ -84,14 +84,26 @@ def get_connection():
     conn.execute("PRAGMA foreign_keys = ON;")
     return ("sqlite", conn)
 
-def execute_query(query, params=None, fetch="all"):
+def execute_query(query, params=None, fetch="all", fetchone=False):
     """
     Executes a SQL query against the active database engine.
     Automatically adapts placeholders ('?' for SQLite vs '%s' for MySQL).
+    Auto-detects INSERT/UPDATE/DELETE queries to return lastrowid or rowcount.
     """
     db_type, conn = get_connection()
     if params is None:
         params = ()
+
+    if fetchone:
+        fetch = "one"
+
+    # Auto-detect statement type if fetch parameter was left as default "all"
+    q_upper = query.strip().upper()
+    if fetch == "all":
+        if q_upper.startswith("INSERT"):
+            fetch = "lastrowid"
+        elif q_upper.startswith("UPDATE") or q_upper.startswith("DELETE"):
+            fetch = "rowcount"
 
     try:
         if db_type == "mysql":
