@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusLink — UMaT Resource Marketplace & Admin Console</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="light-theme">
+
+    <div id="app">
+
+        <!-- ================================================================= -->
+        <!-- 1. AUTHENTICATION PORTAL (LOGIN & REGISTER) -->
+        <!-- ================================================================= -->
+        <section id="authScreen" class="auth-screen">
+            <div class="auth-container">
+                <div class="auth-hero">
+                    <div class="brand-badge-lg">
+                        <i class="fa-solid fa-house-chimney-window"></i>
+                    </div>
+                    <h1 class="auth-title">CampusLink</h1>
+                    <p class="auth-slogan">Rent. Borrow. Lend. Hostels & Equipment.</p>
+                    <p class="auth-sub">University of Mines and Technology (UMaT), Tarkwa</p>
+                </div>
+
+                <div class="auth-card">
+                    <div class="auth-tabs">
+                        <button id="tabBtnLogin" class="auth-tab-btn active" onclick="switchAuthTab('login')">
+                            <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                        </button>
+                        <button id="tabBtnRegister" class="auth-tab-btn" onclick="switchAuthTab('register')">
+                            <i class="fa-solid fa-user-plus"></i> Register Account
+                        </button>
+                    </div>
+
+                    <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="form-stack">
+                        <div class="form-group">
+                            <label>Institutional Email</label>
+                            <input type="email" id="loginEmail" placeholder="ce-aavoryi8125@st.umat.edu.gh" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="loginPassword" placeholder="••••••••" required>
+                                <button type="button" class="btn-toggle-pw" onclick="togglePasswordVisibility('loginPassword', 'pwIcon1')">
+                                    <i id="pwIcon1" class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">
+                            Sign In to CampusLink
+                        </button>
+                    </form>
+
+                    <form id="registerForm" onsubmit="handleRegisterSubmit(event)" class="form-stack hidden">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="regName" placeholder="Albert Boateng" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="regEmail" placeholder="ce-aavoryi8125@st.umat.edu.gh" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Index / Staff ID</label>
+                            <input type="text" id="regStudentId" placeholder="FCM.41.008.043.25" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" id="regPhone" placeholder="+233241234567" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" id="regDept" placeholder="Geomatic Engineering" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="regPassword" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">
+                            Register Account
+                        </button>
+                    </form>
+
+                    <div class="demo-quick-section">
+                        <div class="divider"><span>Instant One-Click Demo Login</span></div>
+                        <div id="demoAccountsContainer" class="demo-cards-grid">
+                            <!-- Populated by app.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- 2. MAIN APPLICATION SCREEN (MATCHING ATTACHED DESIGN) -->
+        <!-- ================================================================= -->
+        <div id="mainAppScreen" class="main-app-screen hidden">
+            
+            <!-- LEFT SIDEBAR PANEL -->
+            <aside class="sidebar-panel">
+                <div>
+                    <!-- BRAND HEADER -->
+                    <div class="sidebar-header">
+                        <div class="sidebar-brand">
+                            <div class="brand-icon-box">
+                                <i class="fa-solid fa-house-chimney-window"></i>
+                            </div>
+                            <div>
+                                <div class="brand-title-text">CampusLink</div>
+                                <div class="brand-subtitle-text">Admin Console</div>
+                            </div>
+                        </div>
+                        <button class="btn-collapse-sidebar" title="Collapse Sidebar">«</button>
+                    </div>
+
+                    <!-- SIDEBAR NAVIGATION GROUPS -->
+                    <div class="sidebar-nav">
+                        <!-- GROUP 1: OVERVIEW -->
+                        <div>
+                            <div class="nav-group-label">OVERVIEW</div>
+                            <div class="nav-group-items">
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('marketplace'); return false;">
+                                    <span><i class="fa-solid fa-gauge-high"></i> Dashboard</span>
+                                </a>
+                                <a href="#" id="sideNavAnalytics" class="sidebar-nav-item active" onclick="switchTab('analytics'); return false;">
+                                    <span><i class="fa-solid fa-chart-line"></i> Analytics & Charts</span>
+                                </a>
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('audit'); return false;">
+                                    <span><i class="fa-solid fa-clipboard-list"></i> Audit Trail</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- GROUP 2: HOSTELS & MARKETPLACE -->
+                        <div>
+                            <div class="nav-group-label">HOSTELS & EQUIPMENT</div>
+                            <div class="nav-group-items">
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('marketplace'); return false;">
+                                    <span><i class="fa-solid fa-house"></i> All Hostels & Items</span>
+                                </a>
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('verification-queue'); return false;">
+                                    <span><i class="fa-solid fa-shield-halved"></i> Verification Queue</span>
+                                    <span class="nav-badge">1</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- GROUP 3: USERS & ADMIN -->
+                        <div>
+                            <div class="nav-group-label">USERS & ADMIN</div>
+                            <div class="nav-group-items">
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('my-rentals'); return false;">
+                                    <span><i class="fa-solid fa-user-tie"></i> Manager Applications</span>
+                                </a>
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('users-management'); return false;">
+                                    <span><i class="fa-solid fa-users"></i> User Management</span>
+                                </a>
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('co-admin'); return false;">
+                                    <span><i class="fa-solid fa-key"></i> Co-Administrators</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- GROUP 4: SYSTEM & LOG -->
+                        <div>
+                            <div class="nav-group-label">SYSTEM & LOG</div>
+                            <div class="nav-group-items">
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('locations'); return false;">
+                                    <span><i class="fa-solid fa-location-dot"></i> Locations</span>
+                                </a>
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('reports'); return false;">
+                                    <span><i class="fa-solid fa-file-lines"></i> System Logs</span>
+                                </a>
+                                <a href="#" class="sidebar-nav-item" onclick="switchTab('profile'); return false;">
+                                    <span><i class="fa-solid fa-gear"></i> Settings</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIDEBAR BOTTOM PROMO CTA CARD -->
+                <div class="sidebar-promo-card">
+                    <div class="sidebar-promo-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="sidebar-promo-title">1 Hostel awaiting verification</div>
+                    <button class="btn-promo" onclick="switchTab('verification-queue')">Review Now</button>
+                </div>
+            </aside>
+
+            <!-- RIGHT CONTENT WRAPPER -->
+            <div class="app-content-wrapper">
+                
+                <!-- TOP HEADER BAR -->
+                <header class="top-header-bar">
+                    <div class="page-title-area">
+                        <h1 id="pageTitleHeading">Rich Analytics & Charts</h1>
+                        <p id="pageTitleSub">CampusLink Administration</p>
+                    </div>
+
+                    <div class="header-right-controls">
+                        <div class="header-search-bar">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="searchInput" placeholder="Search Locations..." oninput="handleSearch()">
+                        </div>
+
+                        <button class="icon-btn-circle" id="headerThemeBtn" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+                            <i id="headerThemeIcon" class="fa-solid fa-sun"></i>
+                        </button>
+
+                        <button class="icon-btn-circle" title="Notifications">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="icon-badge">2</span>
+                        </button>
+
+                        <div class="header-user-profile" onclick="handleLogout()" title="Click to Logout">
+                            <div class="avatar-circle-sm" id="userAvatarCircle">AA</div>
+                            <div class="user-profile-info">
+                                <span id="userNameMeta" class="user-profile-name">Albert Ivoryi (Admin)</span>
+                                <span id="userRoleMeta" class="user-profile-role">Administrator</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down" style="font-size: 11px; color: var(--text-muted);"></i>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- DASHBOARD MAIN CANVAS -->
+                <main class="dashboard-canvas">
+                    
+                    <!-- TAB 1: ANALYTICS & CHARTS (PRIMARY ATTACHED VIEW) -->
+                    <div id="tab-analytics" class="tab-content active">
+                        
+                        <!-- ROW 1: TOP 4 STAT KPI CARDS -->
+                        <div class="kpi-cards-grid">
+                            <!-- CARD 1 -->
+                            <div class="stat-card">
+                                <div class="stat-card-top">
+                                    <div class="stat-icon-box icon-purple">
+                                        <i class="fa-solid fa-house-chimney"></i>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value" id="kpiHostels">4</div>
+                                        <div class="stat-label">Total Hostels</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card-bottom">
+                                    <span class="stat-subtext">Across all locations</span>
+                                    <span class="trend-badge trend-purple"><i class="fa-solid fa-arrow-up"></i> 12%</span>
+                                </div>
+                            </div>
+
+                            <!-- CARD 2 -->
+                            <div class="stat-card">
+                                <div class="stat-card-top">
+                                    <div class="stat-icon-box icon-green">
+                                        <i class="fa-solid fa-shield-check"></i>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value" id="kpiVerified">3</div>
+                                        <div class="stat-label">Verified Hostels</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card-bottom">
+                                    <span class="stat-subtext">Verified & approved</span>
+                                    <span class="trend-badge trend-green"><i class="fa-solid fa-arrow-up"></i> 20%</span>
+                                </div>
+                            </div>
+
+                            <!-- CARD 3 -->
+                            <div class="stat-card">
+                                <div class="stat-card-top">
+                                    <div class="stat-icon-box icon-blue">
+                                        <i class="fa-solid fa-chart-column"></i>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value">38%</div>
+                                        <div class="stat-label">Occupancy Rate</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card-bottom">
+                                    <span class="stat-subtext">Average this month</span>
+                                    <span class="trend-badge trend-blue"><i class="fa-solid fa-arrow-up"></i> 8%</span>
+                                </div>
+                            </div>
+
+                            <!-- CARD 4 -->
+                            <div class="stat-card">
+                                <div class="stat-card-top">
+                                    <div class="stat-icon-box icon-orange">
+                                        <i class="fa-solid fa-sack-dollar"></i>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value">GH₵222,500</div>
+                                        <div class="stat-label">Estimated Revenue</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card-bottom">
+                                    <span class="stat-subtext">This month</span>
+                                    <span class="trend-badge trend-green"><i class="fa-solid fa-arrow-up"></i> 15%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ROW 2: MIDDLE GRID (CHART + TOP LOCATIONS) -->
+                        <div class="middle-grid">
+                            
+                            <!-- CHART CARD -->
+                            <div class="dashboard-card">
+                                <div class="card-header-flex">
+                                    <div class="card-header-title">
+                                        <i class="fa-solid fa-chart-line"></i>
+                                        <h2>Monthly Revenue & Booking Trends</h2>
+                                    </div>
+                                    <select class="select-pill">
+                                        <option>Last 6 Months</option>
+                                    </select>
+                                </div>
+
+                                <div class="chart-legend">
+                                    <span><span class="legend-dot dot-purple"></span> Revenue (GH₵)</span>
+                                    <span><span class="legend-dot dot-light"></span> Bookings</span>
+                                </div>
+
+                                <!-- VISUAL CHART COMPONENT -->
+                                <div class="chart-container">
+                                    <div class="chart-bar-group">
+                                        <div class="chart-bar" style="height: 35%;"><span class="chart-bar-val">15k</span></div>
+                                        <span class="chart-label">Nov</span>
+                                    </div>
+                                    <div class="chart-bar-group">
+                                        <div class="chart-bar" style="height: 50%;"><span class="chart-bar-val">22k</span></div>
+                                        <span class="chart-label">Dec</span>
+                                    </div>
+                                    <div class="chart-bar-group">
+                                        <div class="chart-bar" style="height: 75%;"><span class="chart-bar-val">39k</span></div>
+                                        <span class="chart-label">Jan</span>
+                                    </div>
+                                    <div class="chart-bar-group">
+                                        <div class="chart-bar" style="height: 60%;"><span class="chart-bar-val">29k</span></div>
+                                        <span class="chart-label">Feb</span>
+                                    </div>
+                                    <div class="chart-bar-group">
+                                        <div class="chart-bar" style="height: 80%;"><span class="chart-bar-val">41k</span></div>
+                                        <span class="chart-label">Mar</span>
+                                    </div>
+                                    <div class="chart-bar-group">
+                                        <div class="chart-bar" style="height: 95%;"><span class="chart-bar-val">56k</span></div>
+                                        <span class="chart-label">Apr</span>
+                                    </div>
+                                </div>
+
+                                <!-- BOTTOM SUB-STATS -->
+                                <div class="chart-bottom-stats">
+                                    <div class="chart-sub-box">
+                                        <div class="chart-sub-icon">
+                                            <i class="fa-solid fa-calendar-check"></i>
+                                        </div>
+                                        <div>
+                                            <div class="chart-sub-num">18</div>
+                                            <div class="chart-sub-lbl">Total Bookings</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-sub-box">
+                                        <div class="chart-sub-icon">
+                                            <i class="fa-solid fa-user-group"></i>
+                                        </div>
+                                        <div>
+                                            <div class="chart-sub-num">13</div>
+                                            <div class="chart-sub-lbl">Physical Tours</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TOP LOCATIONS PROGRESS BARS CARD -->
+                            <div class="dashboard-card">
+                                <div class="card-header-flex">
+                                    <div class="card-header-title">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        <h2>Top Hostel Locations in Tarkwa</h2>
+                                    </div>
+                                    <select class="select-pill">
+                                        <option>This Month</option>
+                                    </select>
+                                </div>
+
+                                <div class="location-list">
+                                    <div class="location-item">
+                                        <div class="location-meta">
+                                            <span class="location-name">UMaT Main Gate / Campus</span>
+                                            <span class="location-count">1 Hostel</span>
+                                        </div>
+                                        <div class="progress-bar-bg">
+                                            <div class="progress-bar-fill" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="location-item">
+                                        <div class="location-meta">
+                                            <span class="location-name">Brahabebome</span>
+                                            <span class="location-count">1 Hostel</span>
+                                        </div>
+                                        <div class="progress-bar-bg">
+                                            <div class="progress-bar-fill" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="location-item">
+                                        <div class="location-meta">
+                                            <span class="location-name">Opposite Osborn Hostel</span>
+                                            <span class="location-count">1 Hostel</span>
+                                        </div>
+                                        <div class="progress-bar-bg">
+                                            <div class="progress-bar-fill" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="location-item">
+                                        <div class="location-meta">
+                                            <span class="location-name">Tarkwa Town</span>
+                                            <span class="location-count">1 Hostel</span>
+                                        </div>
+                                        <div class="progress-bar-bg">
+                                            <div class="progress-bar-fill" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card-footer-btn">
+                                    <a href="#" class="btn-link-purple" onclick="switchTab('locations'); return false;">
+                                        View All Locations →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ROW 3: BOTTOM 4 STAT KPI CARDS -->
+                        <div class="kpi-cards-grid">
+                            <!-- CARD 1 -->
+                            <div class="stat-card">
+                                <div class="stat-card-top">
+                                    <div class="stat-icon-box icon-purple">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value">18</div>
+                                        <div class="stat-label">Total Students</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card-bottom">
+                                    <span class="stat-subtext">Registered users</span>
+                                    <span class="trend-badge trend-green"><i class="fa-solid fa-arrow-up"></i> 10%</span>
+                                </div>
+                            </div>
+
+                            <!-- CARD 2 -->
+                            <div class="stat-card">
+                                <div class="stat-card-top">
+                                    <div class="stat-icon-box icon-blue">
+                                        <i class="fa-solid fa-users"></i>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value">17</div>
+                                        <div class="stat-label">Total Managers</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card-bottom">
+                                    <span class="stat-subtext">Active managers</span>
+                                    <span class="trend-badge trend-green"><i class="fa-solid fa-arrow-up"></i> 6%</span>
+                                </div>
+                            </div>
+
+                            <!-- CARD 3 -->
+                            <div class="stat-card">
+                                <div class="stat-card-top">
+                                    <div class="stat-icon-box icon-orange">
+                                        <i class="fa-solid fa-clipboard-list"></i>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value">0</div>
+                                        <div class="stat-label">Pending Applications</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card-bottom">
+                                    <span class="stat-subtext">Waiting review</span>
+                                    <span class="trend-badge trend-pink">- 0%</span>
+                                </div>
+                            </div>
+
+                            <!-- CARD 4 -->
+                            <div class="stat-card">
+                                <div class="stat-card-top">
+                                    <div class="stat-icon-box icon-pink">
+                                        <i class="fa-solid fa-wrench"></i>
+                                    </div>
+                                    <div>
+                                        <div class="stat-value">24</div>
+                                        <div class="stat-label">Open Maintenance</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card-bottom">
+                                    <span class="stat-subtext">Reported issues</span>
+                                    <span class="trend-badge trend-pink"><i class="fa-solid fa-arrow-up"></i> 5%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- TAB 2: MARKETPLACE / ALL HOSTELS GRID -->
+                    <div id="tab-marketplace" class="tab-content">
+                        <div class="card-header-flex">
+                            <h2>All Hostels & Equipment Marketplace</h2>
+                            <button class="btn btn-primary" onclick="openNewListingModal()">
+                                <i class="fa-solid fa-plus"></i> Post New Item / Hostel
+                            </button>
+                        </div>
+
+                        <div id="listingsGrid" class="listings-grid">
+                            <!-- Dynamic Listing Cards populated by app.js -->
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Custom JS -->
+    <script src="/static/app.js"></script>
+</body>
+</html>

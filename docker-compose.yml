@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - USE_MYSQL=true
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=campus_user
+      - MYSQL_PASSWORD=campus_pass
+      - MYSQL_DB=campuslink_umat
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: campuslink_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: campuslink_umat
+      MYSQL_USER: campus_user
+      MYSQL_PASSWORD: campus_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
