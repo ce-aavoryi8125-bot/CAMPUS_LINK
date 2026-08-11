@@ -1,17 +1,18 @@
 /* ==========================================================================
    CampusLink — Peer-to-Peer Student Equipment Marketplace JavaScript Logic
-   University of Mines and Technology (UMaT), Tarkwa, Ghana
+   Original UMaT Theme: Deep Navy (#070F1E), Slate Blue (#4A5DDE), Gold (#D97706)
    ========================================================================== */
 
 // --- GLOBAL APPLICATION STATE ---
 let currentUser = null;
-let currentTab = 'marketplace';
+let currentTab = 'dashboard';
 let currentReportId = 1;
 let allCategories = [];
 let allListings = [];
 let selectedListingForRental = null;
 let selectedTxForReturn = null;
 let demoAccounts = [];
+let isDarkMode = true;
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadDemoAccounts();
     loadCategories();
 
-    // Check if user session already exists in localStorage
     const savedUser = localStorage.getItem('campuslink_user');
     if (savedUser) {
         try {
@@ -42,6 +42,23 @@ function initClock() {
     }
     update();
     setInterval(update, 1000);
+}
+
+// --- THEME TOGGLE ---
+function toggleAppTheme() {
+    isDarkMode = !isDarkMode;
+    const body = document.body;
+    const btnText = document.getElementById('themeToggleText');
+
+    if (isDarkMode) {
+        body.classList.remove('light-theme');
+        body.classList.add('dark-theme');
+        if (btnText) btnText.textContent = '☀ Light';
+    } else {
+        body.classList.remove('dark-theme');
+        body.classList.add('light-theme');
+        if (btnText) btnText.textContent = '🌙 Dark';
+    }
 }
 
 // --- AUTHENTICATION & DEMO ACCOUNTS ---
@@ -69,7 +86,6 @@ async function loadDemoAccounts() {
         const res = await fetch('/api/demo-accounts');
         demoAccounts = await res.json();
 
-        // Populate preset chips on login page
         const presetsContainer = document.getElementById('demoPresetsContainer');
         const ddListContainer = document.getElementById('dropdownDemoAccountsList');
         
@@ -77,7 +93,6 @@ async function loadDemoAccounts() {
         if (ddListContainer) ddListContainer.innerHTML = '';
 
         demoAccounts.forEach(acct => {
-            // Login page chips
             if (presetsContainer) {
                 const btn = document.createElement('button');
                 btn.className = 'demo-preset-chip';
@@ -90,7 +105,6 @@ async function loadDemoAccounts() {
                 presetsContainer.appendChild(btn);
             }
 
-            // Header dropdown switch list
             if (ddListContainer) {
                 const item = document.createElement('button');
                 item.className = 'dropdown-item';
@@ -195,16 +209,18 @@ function handleLogout() {
     showToast('Signed out successfully', 'info');
 }
 
-// --- MAIN APP DISPLAY & HEADER USER METADATA ---
+// --- MAIN APP DISPLAY & HEADER METADATA ---
 function showMainApp() {
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('mainAppScreen').classList.remove('hidden');
 
-    // Update Header Metadata
     const initials = currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2);
     document.getElementById('userAvatar').textContent = initials;
     document.getElementById('headerUserName').textContent = currentUser.name;
     document.getElementById('headerUserRole').textContent = currentUser.verification_level;
+
+    const welcomeName = document.getElementById('dashWelcomeName');
+    if (welcomeName) welcomeName.textContent = currentUser.name;
 
     // Dropdown details
     document.getElementById('ddUserName').textContent = currentUser.name;
@@ -212,7 +228,7 @@ function showMainApp() {
     document.getElementById('ddUserId').textContent = `ID: ${currentUser.student_id || 'N/A'}`;
 
     // Load initial tab data
-    switchTab('marketplace');
+    switchTab('dashboard');
 }
 
 function toggleUserDropdown(e) {
@@ -228,12 +244,12 @@ function closeUserDropdown() {
 
 document.addEventListener('click', closeUserDropdown);
 
-// --- TAB NAVIGATION ---
+// --- TOP HEADER TAB NAVIGATION ---
 function switchTab(tabId) {
     currentTab = tabId;
 
-    // Toggle Nav Button Highlight
     const navBtns = {
+        'dashboard': 'navBtnDashboard',
         'marketplace': 'navBtnMarketplace',
         'my-rentals': 'navBtnMyRentals',
         'list-new': 'navBtnListNew',
@@ -243,7 +259,7 @@ function switchTab(tabId) {
 
     Object.keys(navBtns).forEach(key => {
         const btn = document.getElementById(navBtns[key]);
-        const pane = document.getElementById(`tab${key.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')}`);
+        const pane = document.getElementById(`tab${key.charAt(0).toUpperCase() + key.slice(1)}`);
         
         if (key === tabId) {
             if (btn) btn.classList.add('active');
@@ -254,8 +270,9 @@ function switchTab(tabId) {
         }
     });
 
-    // Execute Tab Loaders
-    if (tabId === 'marketplace') {
+    if (tabId === 'dashboard') {
+        loadDashboardData();
+    } else if (tabId === 'marketplace') {
         loadMarketplaceListings();
     } else if (tabId === 'my-rentals') {
         loadMyRentalsData();
@@ -267,6 +284,22 @@ function switchTab(tabId) {
     } else if (tabId === 'reports') {
         loadReportsList();
         loadReportData(currentReportId);
+    }
+}
+
+// --- TAB 0: HOMEPAGE DASHBOARD ---
+async function loadDashboardData() {
+    try {
+        const res = await fetch('/api/listings?category_id=all&search=');
+        allListings = await res.json();
+
+        document.getElementById('dashTotalEquipment').textContent = `${allListings.length} Items`;
+
+        // Featured 6 listings on Homepage Grid
+        const featured = allListings.slice(0, 6);
+        renderListingsGrid(featured, 'dashFeaturedGrid');
+    } catch (e) {
+        console.error("Failed to load dashboard data", e);
     }
 }
 
@@ -325,14 +358,14 @@ async function loadMarketplaceListings() {
             filtered = filtered.filter(l => l.condition === condFilter);
         }
 
-        renderListingsGrid(filtered);
+        renderListingsGrid(filtered, 'listingsGrid');
     } catch (e) {
         console.error("Failed to load listings", e);
     }
 }
 
-function renderListingsGrid(listings) {
-    const grid = document.getElementById('listingsGrid');
+function renderListingsGrid(listings, containerId = 'listingsGrid') {
+    const grid = document.getElementById(containerId);
     if (!grid) return;
 
     if (!listings || listings.length === 0) {
@@ -349,7 +382,7 @@ function renderListingsGrid(listings) {
     grid.innerHTML = '';
     listings.forEach(item => {
         const isOwner = currentUser && item.owner_id === currentUser.user_id;
-        const thumb = item.thumbnail_path && item.thumbnail_path.length > 5 ? item.thumbnail_path : '/assets/logo.jpg';
+        const thumb = item.thumbnail_path && item.thumbnail_path.length > 5 ? item.thumbnail_path : 'assets/logo.jpg';
 
         const card = document.createElement('div');
         card.className = 'item-card';
@@ -432,7 +465,6 @@ function openRentalModal(listingId) {
     document.getElementById('modalItemDeposit').textContent = `GH₵ ${item.deposit_amount.toFixed(2)}`;
     document.getElementById('modalItemImg').src = `/${item.thumbnail_path || 'assets/logo.jpg'}`;
 
-    // Default dates (Tomorrow to 3 days later)
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -520,7 +552,6 @@ async function loadMyRentalsData() {
         const res = await fetch(`/api/rentals/my-requests/${currentUser.user_id}`);
         const data = await res.json();
 
-        // 1. Incoming Requests
         const incomingContainer = document.getElementById('incomingRequestsContainer');
         const incomingCountTag = document.getElementById('incomingCountTag');
         const navBadge = document.getElementById('incomingReqBadge');
@@ -565,7 +596,6 @@ async function loadMyRentalsData() {
             }
         }
 
-        // 2. Outgoing Requests
         const outgoingContainer = document.getElementById('outgoingRequestsContainer');
         const outgoingCountTag = document.getElementById('outgoingCountTag');
         if (outgoingCountTag) outgoingCountTag.textContent = `${(data.outgoing || []).length} Submitted`;
@@ -593,7 +623,6 @@ async function loadMyRentalsData() {
             }
         }
 
-        // 3. Active Rented Items
         const activeContainer = document.getElementById('activeLentContainer');
         const activeCountTag = document.getElementById('activeTxCountTag');
 
@@ -769,7 +798,6 @@ async function handleCreateListingSubmit(e) {
 async function loadTrustScoreAndProfile() {
     if (!currentUser) return;
 
-    // Profile Details
     document.getElementById('profName').textContent = currentUser.name;
     document.getElementById('profEmail').textContent = currentUser.email;
     document.getElementById('profStudentId').textContent = currentUser.student_id || 'N/A';
@@ -777,27 +805,25 @@ async function loadTrustScoreAndProfile() {
     document.getElementById('profHostel').textContent = currentUser.hostel || 'Chamber of Mines Hostel';
     document.getElementById('profVerification').textContent = currentUser.verification_level;
 
-    // Fetch Trust Score
     try {
         const res = await fetch(`/api/trust-score/${currentUser.user_id}`);
         const trust = await res.json();
 
-        const score = trust.score || 90;
+        const score = trust.score || 92;
         document.getElementById('trustScoreValue').textContent = score;
-        document.getElementById('trustAvgRating').textContent = `${(trust.avg_rating || 5.0).toFixed(1)} ★`;
-        document.getElementById('trustTotalRentals').textContent = trust.total_rentals || 0;
+        document.getElementById('headerTrustScore').textContent = `${score}/100`;
+        document.getElementById('trustAvgRating').textContent = `${(trust.avg_rating || 4.9).toFixed(1)} ★`;
+        document.getElementById('trustTotalRentals').textContent = trust.total_rentals || 18;
         document.getElementById('trustDamageClaims').textContent = trust.damage_claims || 0;
 
-        // SVG Ring animation (stroke-dashoffset range 0 - 264)
         const offset = 264 - (score / 100) * 264;
         const fillRing = document.getElementById('trustGaugeFill');
         if (fillRing) fillRing.style.strokeDashoffset = offset;
 
-        // Trust Tier Badge
         const tierBadge = document.getElementById('trustTierBadge');
         if (tierBadge) {
-            if (score >= 90) tierBadge.innerHTML = '<i class="fa-solid fa-award"></i> Platinum Trust Tier';
-            else if (score >= 75) tierBadge.innerHTML = '<i class="fa-solid fa-medal"></i> Gold Trust Tier';
+            if (score >= 90) tierBadge.innerHTML = '<i class="fa-solid fa-award"></i> Verified Gold Tier';
+            else if (score >= 75) tierBadge.innerHTML = '<i class="fa-solid fa-medal"></i> Silver Trust Tier';
             else tierBadge.innerHTML = '<i class="fa-solid fa-shield"></i> Standard Trust Tier';
         }
     } catch (e) {
@@ -934,12 +960,10 @@ async function loadReportData(reportId) {
 
         if (rowsCountTag) rowsCountTag.textContent = `${(data.data || []).length} Records`;
 
-        // Render Table Headers
         if (thead) {
             thead.innerHTML = '<tr>' + (data.headers || []).map(h => `<th>${h}</th>`).join('') + '</tr>';
         }
 
-        // Render Table Rows
         if (tbody) {
             if (!data.data || data.data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="${(data.headers || []).length || 1}" style="text-align: center; color: var(--text-muted); padding: 30px;">No report records found.</td></tr>`;
