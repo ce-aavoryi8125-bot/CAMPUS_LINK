@@ -248,18 +248,19 @@ document.addEventListener('click', closeUserDropdown);
 function switchTab(tabId) {
     currentTab = tabId;
 
-    const navBtns = {
-        'dashboard': 'navBtnDashboard',
-        'marketplace': 'navBtnMarketplace',
-        'my-rentals': 'navBtnMyRentals',
-        'list-new': 'navBtnListNew',
-        'trust-profile': 'navBtnTrustProfile',
-        'reports': 'navBtnReports'
+    const tabMap = {
+        'dashboard': { btn: 'navBtnDashboard', pane: 'tabDashboard' },
+        'marketplace': { btn: 'navBtnMarketplace', pane: 'tabMarketplace' },
+        'my-rentals': { btn: 'navBtnMyRentals', pane: 'tabMyRentals' },
+        'list-new': { btn: 'navBtnListNew', pane: 'tabListNew' },
+        'trust-profile': { btn: 'navBtnTrustProfile', pane: 'tabTrustProfile' },
+        'reports': { btn: 'navBtnReports', pane: 'tabReports' }
     };
 
-    Object.keys(navBtns).forEach(key => {
-        const btn = document.getElementById(navBtns[key]);
-        const pane = document.getElementById(`tab${key.charAt(0).toUpperCase() + key.slice(1)}`);
+    Object.keys(tabMap).forEach(key => {
+        const item = tabMap[key];
+        const btn = document.getElementById(item.btn);
+        const pane = document.getElementById(item.pane);
         
         if (key === tabId) {
             if (btn) btn.classList.add('active');
