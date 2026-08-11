@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CampusLink — Original UMaT P2P Resource Marketplace Design System
+   CampusLink — Left Vertical Sidebar Layout & Original UMaT Design System
    Color Tokens: Slate Blue (#4A5DDE), Deep Navy (#070F1E), Dark Card (#1E293B),
    Gold Trust Pill (#D97706), Emerald Green (#10B981), Rose Red (#EF4444)
    ========================================================================== */
@@ -7,6 +7,7 @@
 :root {
     --bg-main: #0A192F;
     --bg-header: #070F1E;
+    --bg-sidebar: #070F1E;
     --bg-card: #1E293B;
     --bg-card-light: #FFFFFF;
     --bg-input: #0F172A;
@@ -42,6 +43,7 @@
 body.light-theme {
     --bg-main: #F8FAFC;
     --bg-header: #0A192F;
+    --bg-sidebar: #0A192F;
     --bg-card: #FFFFFF;
     --bg-card-solid: #FFFFFF;
     --bg-input: #F1F5F9;
@@ -341,7 +343,7 @@ body {
 }
 
 /* ==========================================================================
-   2. MAIN APPLICATION LAYOUT & TOP NAVIGATION HEADER
+   2. MAIN APPLICATION SCREEN (TOP HEADER & LEFT SIDEBAR LAYOUT)
    ========================================================================== */
 .main-app-screen {
     min-height: 100vh;
@@ -349,7 +351,7 @@ body {
     flex-direction: column;
 }
 
-/* DEEP NAVY TOP HEADER BAR matching main_window.py (#070F1E) */
+/* TOP HEADER BAR */
 .app-header {
     background-color: var(--bg-header);
     border-bottom: 1px solid var(--border-card);
@@ -360,6 +362,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+    height: 65px;
 }
 
 .header-left {
@@ -395,51 +398,6 @@ body {
     font-weight: 600;
 }
 
-/* TOP NAVIGATION BUTTONS (PLACED AT THE VERY TOP) */
-.header-nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.nav-link {
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid var(--border-card);
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 700;
-    padding: 9px 18px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.nav-link:hover {
-    background: var(--primary);
-    color: #FFFFFF;
-    border-color: var(--primary);
-}
-
-.nav-link.active {
-    background: var(--primary);
-    color: #FFFFFF;
-    border-color: var(--primary);
-    box-shadow: 0 4px 12px rgba(74, 93, 222, 0.4);
-}
-
-.badge-count {
-    background: var(--rose);
-    color: #FFFFFF;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 10px;
-}
-
 .header-right {
     display: flex;
     align-items: center;
@@ -454,7 +412,6 @@ body {
     color: var(--text-muted);
 }
 
-/* GOLD TRUST SCORE BADGE matching main_window.py */
 .gold-trust-pill {
     background-color: var(--gold);
     color: #FFFFFF;
@@ -539,41 +496,12 @@ body {
     z-index: 200;
 }
 
-.dropdown-header {
-    margin-bottom: 12px;
-}
-
-.dd-name {
-    font-size: 15px;
-    font-weight: 700;
-    color: #FFFFFF;
-}
-
-.dd-email {
-    font-size: 12px;
-    color: var(--emerald);
-    margin-top: 2px;
-}
-
-.dd-id {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 2px;
-}
-
-.dropdown-divider {
-    height: 1px;
-    background: var(--border-card);
-    margin: 10px 0;
-}
-
-.dropdown-section-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-}
+.dropdown-header { margin-bottom: 12px; }
+.dd-name { font-size: 15px; font-weight: 700; color: #FFFFFF; }
+.dd-email { font-size: 12px; color: var(--emerald); margin-top: 2px; }
+.dd-id { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.dropdown-divider { height: 1px; background: var(--border-card); margin: 10px 0; }
+.dropdown-section-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
 
 .dropdown-item {
     width: 100%;
@@ -595,17 +523,127 @@ body {
     color: #FFFFFF;
 }
 
-.dropdown-item.text-danger {
-    color: var(--rose);
+.dropdown-item.text-danger { color: var(--rose); }
+
+/* APP BODY WITH LEFT VERTICAL SIDEBAR */
+.app-body {
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - 65px);
 }
 
-/* VIEWPORT */
+/* LEFT VERTICAL SIDEBAR NAVIGATION */
+.app-sidebar {
+    width: 240px;
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-card);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: sticky;
+    top: 65px;
+    height: calc(100vh - 65px);
+    z-index: 90;
+    flex-shrink: 0;
+}
+
+.sidebar-menu-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    padding-left: 12px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sidebar-nav-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    position: relative;
+}
+
+.sidebar-nav-btn i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-nav-btn:hover {
+    background: rgba(74, 93, 222, 0.15);
+    color: #FFFFFF;
+    border-color: var(--border-card);
+}
+
+.sidebar-nav-btn.active {
+    background: var(--primary);
+    color: #FFFFFF;
+    font-weight: 700;
+    border-color: var(--primary);
+    box-shadow: 0 4px 15px rgba(74, 93, 222, 0.4);
+}
+
+.sidebar-nav-btn .badge-count {
+    margin-left: auto;
+    background: var(--rose);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.sidebar-footer-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border-card);
+    padding: 14px;
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.sidebar-footer-card i {
+    font-size: 20px;
+    color: var(--gold);
+    margin-bottom: 4px;
+}
+
+.sfc-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+.sfc-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* MAIN VIEWPORT */
 .app-viewport {
     flex: 1;
-    padding: 24px 28px;
-    max-width: 1440px;
-    width: 100%;
-    margin: 0 auto;
+    padding: 24px 32px;
+    width: calc(100% - 240px);
+    overflow-y: auto;
 }
 
 .tab-pane {
@@ -633,7 +671,6 @@ body {
     color: var(--gold);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-
 }
 
 .hero-text-side h2 {

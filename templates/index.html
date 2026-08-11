@@ -136,11 +136,11 @@
         </section>
 
         <!-- ================================================================= -->
-        <!-- 2. MAIN APPLICATION SCREEN (ORIGINAL TOP BUTTONS & HEADER LAYOUT) -->
+        <!-- 2. MAIN APPLICATION SCREEN (LEFT VERTICAL SIDEBAR LAYOUT) -->
         <!-- ================================================================= -->
         <div id="mainAppScreen" class="main-app-screen hidden">
             
-            <!-- ORIGINAL DEEP NAVY HEADER BAR -->
+            <!-- TOP HEADER BAR -->
             <header class="app-header">
                 <!-- LEFT: LOGO & BRAND -->
                 <div class="header-left">
@@ -153,30 +153,7 @@
                     </div>
                 </div>
 
-                <!-- TOP NAVIGATION BUTTONS AT THE VERY TOP -->
-                <nav class="header-nav">
-                    <button class="nav-link active" id="navBtnDashboard" onclick="switchTab('dashboard')">
-                        <i class="fa-solid fa-house"></i> Dashboard
-                    </button>
-                    <button class="nav-link" id="navBtnMarketplace" onclick="switchTab('marketplace')">
-                        <i class="fa-solid fa-store"></i> Marketplace
-                    </button>
-                    <button class="nav-link" id="navBtnMyRentals" onclick="switchTab('my-rentals')">
-                        <i class="fa-solid fa-boxes-packing"></i> My Rentals
-                        <span class="badge-count hidden" id="incomingReqBadge">0</span>
-                    </button>
-                    <button class="nav-link" id="navBtnListNew" onclick="switchTab('list-new')">
-                        <i class="fa-solid fa-circle-plus"></i> Post Item
-                    </button>
-                    <button class="nav-link" id="navBtnTrustProfile" onclick="switchTab('trust-profile')">
-                        <i class="fa-solid fa-shield-halved"></i> Trust & Profile
-                    </button>
-                    <button class="nav-link" id="navBtnReports" onclick="switchTab('reports')">
-                        <i class="fa-solid fa-chart-pie"></i> Reports
-                    </button>
-                </nav>
-
-                <!-- RIGHT CONTROLS: PROFILE, TRUST BADGE, THEME TOGGLE, LOGOUT -->
+                <!-- RIGHT CONTROLS: LIVE CLOCK, TRUST BADGE, THEME TOGGLE, USER DROPDOWN -->
                 <div class="header-right">
                     <div class="live-clock" id="liveClockDisplay">--:--:--</div>
 
@@ -215,391 +192,434 @@
                 </div>
             </header>
 
-            <!-- MAIN CONTENT VIEWPORT -->
-            <main class="app-viewport">
+            <!-- MAIN BODY (LEFT SIDEBAR + VIEWPORT) -->
+            <div class="app-body">
                 
-                <!-- ========================================================= -->
-                <!-- TAB 0: HOMEPAGE DASHBOARD -->
-                <!-- ========================================================= -->
-                <div id="tabDashboard" class="tab-pane active">
-                    
-                    <!-- HERO DASHBOARD BANNER -->
-                    <div class="dashboard-hero-card glass-card">
-                        <div class="hero-text-side">
-                            <span class="umat-tag"><i class="fa-solid fa-building-columns"></i> University of Mines and Technology, Tarkwa</span>
-                            <h2>Welcome back, <span id="dashWelcomeName">Albert Boateng</span>!</h2>
-                            <p>CampusLink connects UMaT engineering students and staff to rent, borrow, lend, and monetize underutilized surveying gear, laboratory instruments, laptops, and mining PPE safely.</p>
-                            
-                            <div class="dash-quick-actions">
-                                <button class="btn btn-primary" onclick="switchTab('marketplace')">
-                                    <i class="fa-solid fa-store"></i> Browse Equipment Marketplace
-                                </button>
-                                <button class="btn btn-emerald" onclick="switchTab('list-new')">
-                                    <i class="fa-solid fa-circle-plus"></i> Post Equipment for Rent
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- TOP KPI STAT CARDS ROW -->
-                    <div class="kpi-grid">
-                        <div class="kpi-card glass-card">
-                            <div class="kpi-icon-box primary">
-                                <i class="fa-solid fa-boxes-stacked"></i>
-                            </div>
-                            <div class="kpi-details">
-                                <span class="kpi-title">Available Equipment</span>
-                                <h3 class="kpi-val" id="dashTotalEquipment">61 Items</h3>
-                                <span class="kpi-sub positive"><i class="fa-solid fa-arrow-trend-up"></i> Across 13 Categories</span>
-                            </div>
-                        </div>
-
-                        <div class="kpi-card glass-card">
-                            <div class="kpi-icon-box emerald">
-                                <i class="fa-solid fa-handshake"></i>
-                            </div>
-                            <div class="kpi-details">
-                                <span class="kpi-title">Active Rentals</span>
-                                <h3 class="kpi-val" id="dashActiveRentals">18 Exchanges</h3>
-                                <span class="kpi-sub positive"><i class="fa-solid fa-check"></i> In Progress</span>
-                            </div>
-                        </div>
-
-                        <div class="kpi-card glass-card">
-                            <div class="kpi-icon-box gold">
-                                <i class="fa-solid fa-shield-halved"></i>
-                            </div>
-                            <div class="kpi-details">
-                                <span class="kpi-title">Campus Trust Engine</span>
-                                <h3 class="kpi-val" id="dashTrustScore">92 / 100</h3>
-                                <span class="kpi-sub warning"><i class="fa-solid fa-award"></i> Verified Gold Tier</span>
-                            </div>
-                        </div>
-
-                        <div class="kpi-card glass-card">
-                            <div class="kpi-icon-box cyan">
-                                <i class="fa-solid fa-sack-dollar"></i>
-                            </div>
-                            <div class="kpi-details">
-                                <span class="kpi-title">Platform Revenue</span>
-                                <h3 class="kpi-val" id="dashRevenue">GH₵ 1,240.00</h3>
-                                <span class="kpi-sub info"><i class="fa-solid fa-percent"></i> 10% Platform Fee</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- FEATURED EQUIPMENT SECTION ON HOMEPAGE -->
-                    <div class="dash-section-header">
-                        <h3><i class="fa-solid fa-fire"></i> Featured Campus Equipment for Rent</h3>
-                        <button class="btn-text-link" onclick="switchTab('marketplace')">View All 61 Listings →</button>
-                    </div>
-
-                    <div class="listings-grid" id="dashFeaturedGrid">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-
-                </div>
-
-                <!-- ========================================================= -->
-                <!-- TAB 1: EQUIPMENT MARKETPLACE -->
-                <!-- ========================================================= -->
-                <div id="tabMarketplace" class="tab-pane hidden">
-                    
-                    <!-- FILTER & SEARCH BAR AT TOP OF MARKETPLACE -->
-                    <div class="filter-toolbar glass-card">
-                        <div class="search-box">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="marketSearchInput" placeholder="Search equipment (e.g., Leica Total Station, Oscilloscope, Mining PPE, Dell XPS)..." oninput="handleMarketSearch()">
-                        </div>
-                        <div class="filter-controls">
-                            <select id="marketCategoryFilter" onchange="handleMarketSearch()">
-                                <option value="all">All Categories</option>
-                            </select>
-                            <select id="marketConditionFilter" onchange="handleMarketSearch()">
-                                <option value="all">All Conditions</option>
-                                <option value="New">New</option>
-                                <option value="Excellent">Excellent</option>
-                                <option value="Good">Good</option>
-                                <option value="Fair">Fair</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- CATEGORY QUICK PILLS -->
-                    <div class="category-pills" id="categoryPillsContainer"></div>
-
-                    <!-- LISTINGS GRID -->
-                    <div class="listings-grid" id="listingsGrid"></div>
-                </div>
-
-                <!-- ========================================================= -->
-                <!-- TAB 2: MY RENTALS & REQUESTS -->
-                <!-- ========================================================= -->
-                <div id="tabMyRentals" class="tab-pane hidden">
-                    <div class="page-title-banner">
-                        <h2><i class="fa-solid fa-boxes-packing"></i> My Rentals & Rental Requests</h2>
-                        <p>Manage incoming requests for your equipment, track items you're borrowing, and process returns.</p>
-                    </div>
-
-                    <div class="rentals-layout">
-                        <!-- SECTION 1: INCOMING REQUESTS -->
-                        <div class="section-card glass-card">
-                            <div class="section-header">
-                                <h3><i class="fa-solid fa-inbox"></i> Incoming Rental Requests (Lender Console)</h3>
-                                <span class="badge-tag info" id="incomingCountTag">0 Pending</span>
-                            </div>
-                            <p class="section-desc">Borrowers requesting to rent your listed equipment. Approving locks dates and calculates net earnings after 10% platform commission.</p>
-                            <div id="incomingRequestsContainer" class="requests-list"></div>
-                        </div>
-
-                        <!-- SECTION 2: OUTGOING BORROW REQUESTS -->
-                        <div class="section-card glass-card">
-                            <div class="section-header">
-                                <h3><i class="fa-solid fa-paper-plane"></i> My Submitted Borrow Requests</h3>
-                                <span class="badge-tag info" id="outgoingCountTag">0 Submitted</span>
-                            </div>
-                            <p class="section-desc">Rental booking requests you have submitted to equipment owners across campus.</p>
-                            <div id="outgoingRequestsContainer" class="requests-list"></div>
-                        </div>
-
-                        <!-- SECTION 3: ACTIVE & COMPLETED TRANSACTIONS -->
-                        <div class="section-card glass-card">
-                            <div class="section-header">
-                                <h3><i class="fa-solid fa-handshake"></i> Active & Completed Rental Transactions</h3>
-                                <span class="badge-tag success" id="activeTxCountTag">0 Active</span>
-                            </div>
-                            <p class="section-desc">Track active equipment rentals, process returns, evaluate condition, and submit peer reviews.</p>
-                            <div id="activeLentContainer" class="requests-list"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ========================================================= -->
-                <!-- TAB 3: POST NEW EQUIPMENT LISTING -->
-                <!-- ========================================================= -->
-                <div id="tabListNew" class="tab-pane hidden">
-                    <div class="post-item-container">
-                        <div class="glass-card post-item-card">
-                            <div class="post-header">
-                                <h2><i class="fa-solid fa-circle-plus"></i> List Equipment for Rent</h2>
-                                <p>Monetize your underutilized academic tools, surveying gear, or hostel appliances safely.</p>
-                            </div>
-
-                            <form id="createListingForm" onsubmit="handleCreateListingSubmit(event)" class="form-stack">
-                                <div class="form-group">
-                                    <label><i class="fa-solid fa-tag"></i> Listing Title</label>
-                                    <input type="text" id="postTitle" placeholder="e.g. Leica Total Station TS07 (FlexLine)" required>
-                                </div>
-
-                                <div class="grid-2col">
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-list"></i> Category</label>
-                                        <select id="postCategory" required></select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-layer-group"></i> Subcategory</label>
-                                        <input type="text" id="postSubcategory" placeholder="e.g. Total Station, Laptop, PPE" required>
-                                    </div>
-                                </div>
-
-                                <div class="grid-3col">
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-industry"></i> Brand</label>
-                                        <input type="text" id="postBrand" placeholder="e.g. Leica, Dell, Fluke" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-barcode"></i> Model</label>
-                                        <input type="text" id="postModel" placeholder="e.g. TS07, XPS 15, 87V" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-calendar"></i> Purchase Year</label>
-                                        <input type="number" id="postYear" value="2023" min="2015" max="2026" required>
-                                    </div>
-                                </div>
-
-                                <div class="grid-2col">
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-money-bill-wave"></i> Daily Rental Rate (GH₵/day)</label>
-                                        <input type="number" step="0.5" id="postRate" placeholder="e.g. 50.00" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-vault"></i> Security Deposit (GH₵)</label>
-                                        <input type="number" step="1.0" id="postDeposit" placeholder="e.g. 200.00" required>
-                                    </div>
-                                </div>
-
-                                <div class="grid-2col">
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-star-half-stroke"></i> Equipment Condition</label>
-                                        <select id="postCondition" required>
-                                            <option value="New">New</option>
-                                            <option value="Excellent">Excellent</option>
-                                            <option value="Good" selected>Good</option>
-                                            <option value="Fair">Fair</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-location-dot"></i> Pickup Location / Hostel</label>
-                                        <input type="text" id="postLocation" placeholder="e.g. Chamber of Mines Hostel" required>
-                                    </div>
-                                </div>
-
-                                <div class="grid-2col">
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-calendar-check"></i> Available From</label>
-                                        <input type="date" id="postStartDate" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label><i class="fa-solid fa-calendar-xmark"></i> Available Until</label>
-                                        <input type="date" id="postEndDate" required>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label><i class="fa-solid fa-align-left"></i> Description & Included Accessories</label>
-                                    <textarea id="postDescription" rows="3" placeholder="Describe the equipment, technical specifications, and what accessories are included (tripod, cables, charger, etc.)..."></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label><i class="fa-solid fa-image"></i> Equipment Photo URL / Image File</label>
-                                    <input type="text" id="postImageUrl" placeholder="assets/products/leica_total_station_ts07.png">
-                                </div>
-
-                                <button type="submit" class="btn btn-primary btn-block btn-lg">
-                                    <i class="fa-solid fa-paper-plane"></i> Publish Equipment Listing to Marketplace
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ========================================================= -->
-                <!-- TAB 4: TRUST SCORE & USER PROFILE -->
-                <!-- ========================================================= -->
-                <div id="tabTrustProfile" class="tab-pane hidden">
-                    <div class="profile-layout">
-                        <!-- TRUST SCORE CARD -->
-                        <div class="glass-card trust-score-card">
-                            <h3><i class="fa-solid fa-shield-halved"></i> Campus Trust Score Engine</h3>
-                            <p class="trust-subtitle">Automated trust rating computed from review averages, completed exchanges, and damage history.</p>
-
-                            <div class="trust-gauge-area">
-                                <div class="trust-gauge-circle">
-                                    <svg viewBox="0 0 100 100">
-                                        <circle class="gauge-bg" cx="50" cy="50" r="42"></circle>
-                                        <circle class="gauge-fill" id="trustGaugeFill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="30"></circle>
-                                    </svg>
-                                    <div class="gauge-text">
-                                        <div class="gauge-score" id="trustScoreValue">92</div>
-                                        <div class="gauge-label">out of 100</div>
-                                    </div>
-                                </div>
-
-                                <div class="trust-tier-badge" id="trustTierBadge">
-                                    <i class="fa-solid fa-award"></i> Verified Gold Tier
-                                </div>
-                            </div>
-
-                            <div class="trust-metrics-grid">
-                                <div class="metric-box">
-                                    <div class="metric-val" id="trustAvgRating">4.9 ★</div>
-                                    <div class="metric-lbl">Peer Rating</div>
-                                </div>
-                                <div class="metric-box">
-                                    <div class="metric-val" id="trustTotalRentals">18</div>
-                                    <div class="metric-lbl">Completed Exchanges</div>
-                                </div>
-                                <div class="metric-box">
-                                    <div class="metric-val text-success" id="trustDamageClaims">0</div>
-                                    <div class="metric-lbl">Damage Claims</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- PROFILE DETAILS & BOOKMARKS -->
-                        <div class="profile-right-stack">
-                            <div class="glass-card profile-details-card">
-                                <h3><i class="fa-solid fa-id-card"></i> Student / Staff Credentials</h3>
-                                <div class="profile-info-grid">
-                                    <div class="info-item">
-                                        <label>Full Name</label>
-                                        <span id="profName">Albert Boateng</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <label>Institutional Email</label>
-                                        <span id="profEmail">ce-aavoryi8125@st.umat.edu.gh</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <label>Index / Staff ID</label>
-                                        <span id="profStudentId">FCM.41.008.043.25</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <label>Department</label>
-                                        <span id="profDept">Geomatic Engineering</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <label>Hostel Residence</label>
-                                        <span id="profHostel">Chamber of Mines Hostel</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <label>Verification Level</label>
-                                        <span class="badge-tag success" id="profVerification">Verified Student</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- SAVED LISTINGS & WISHLIST -->
-                            <div class="glass-card saved-items-card">
-                                <h3><i class="fa-solid fa-bookmark"></i> My Saved Equipment & Wishlist Alerts</h3>
-                                <div class="saved-tabs">
-                                    <button class="tab-mini active" onclick="switchSavedTab('saved')">Saved Bookmarks</button>
-                                    <button class="tab-mini" onclick="switchSavedTab('wishlist')">Wishlist Keyword Alerts</button>
-                                </div>
-                                <div id="savedListingsContainer" class="saved-list"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ========================================================= -->
-                <!-- TAB 5: CAMPUS INTELLIGENCE REPORTS -->
-                <!-- ========================================================= -->
-                <div id="tabReports" class="tab-pane hidden">
-                    <div class="reports-header-banner glass-card">
-                        <div>
-                            <h2><i class="fa-solid fa-chart-pie"></i> Campus Intelligence & Analytical Reports</h2>
-                            <p>15 Specialized SQL analytical reports providing data insights into revenue, top lenders, equipment utilization, and hostel density.</p>
-                        </div>
-                        <button class="btn btn-emerald" onclick="exportCurrentReportCSV()">
-                            <i class="fa-solid fa-file-csv"></i> Export Current Report to CSV
+                <!-- LEFT VERTICAL SIDEBAR NAVIGATION -->
+                <aside class="app-sidebar">
+                    <div class="sidebar-menu-title">Main Menu</div>
+                    <nav class="sidebar-nav">
+                        <button class="sidebar-nav-btn active" id="navBtnDashboard" onclick="switchTab('dashboard')">
+                            <i class="fa-solid fa-house"></i>
+                            <span>Dashboard</span>
                         </button>
-                    </div>
+                        <button class="sidebar-nav-btn" id="navBtnMarketplace" onclick="switchTab('marketplace')">
+                            <i class="fa-solid fa-store"></i>
+                            <span>Marketplace</span>
+                        </button>
+                        <button class="sidebar-nav-btn" id="navBtnMyRentals" onclick="switchTab('my-rentals')">
+                            <i class="fa-solid fa-boxes-packing"></i>
+                            <span>My Rentals</span>
+                            <span class="badge-count hidden" id="incomingReqBadge">0</span>
+                        </button>
+                        <button class="sidebar-nav-btn" id="navBtnListNew" onclick="switchTab('list-new')">
+                            <i class="fa-solid fa-circle-plus"></i>
+                            <span>Post Item</span>
+                        </button>
+                        <button class="sidebar-nav-btn" id="navBtnTrustProfile" onclick="switchTab('trust-profile')">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Trust & Profile</span>
+                        </button>
+                        <button class="sidebar-nav-btn" id="navBtnReports" onclick="switchTab('reports')">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Reports</span>
+                        </button>
+                    </nav>
 
-                    <div class="reports-layout">
-                        <!-- REPORT SELECTOR SIDEBAR -->
-                        <div class="reports-selector-card glass-card">
-                            <h4>Select Business Intelligence Report</h4>
-                            <div class="reports-menu-list" id="reportsMenuList"></div>
+                    <div class="sidebar-footer-card">
+                        <i class="fa-solid fa-building-columns"></i>
+                        <div class="sfc-title">UMaT Tarkwa</div>
+                        <div class="sfc-sub">Peer-to-Peer Network</div>
+                    </div>
+                </aside>
+
+                <!-- MAIN CONTENT VIEWPORT -->
+                <main class="app-viewport">
+                    
+                    <!-- ========================================================= -->
+                    <!-- TAB 0: HOMEPAGE DASHBOARD -->
+                    <!-- ========================================================= -->
+                    <div id="tabDashboard" class="tab-pane active">
+                        
+                        <!-- HERO DASHBOARD BANNER -->
+                        <div class="dashboard-hero-card glass-card">
+                            <div class="hero-text-side">
+                                <span class="umat-tag"><i class="fa-solid fa-building-columns"></i> University of Mines and Technology, Tarkwa</span>
+                                <h2>Welcome back, <span id="dashWelcomeName">Albert Boateng</span>!</h2>
+                                <p>CampusLink connects UMaT engineering students and staff to rent, borrow, lend, and monetize underutilized surveying gear, laboratory instruments, laptops, and mining PPE safely.</p>
+                                
+                                <div class="dash-quick-actions">
+                                    <button class="btn btn-primary" onclick="switchTab('marketplace')">
+                                        <i class="fa-solid fa-store"></i> Browse Equipment Marketplace
+                                    </button>
+                                    <button class="btn btn-emerald" onclick="switchTab('list-new')">
+                                        <i class="fa-solid fa-circle-plus"></i> Post Equipment for Rent
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- REPORT DATA DISPLAY CANVAS -->
-                        <div class="reports-data-card glass-card">
-                            <div class="report-meta-header">
-                                <h3 id="reportTitleDisplay">Report 01: Platform Revenue & Commission Summary</h3>
-                                <span class="badge-tag info" id="reportRowsCount">0 Records</span>
+                        <!-- TOP KPI STAT CARDS ROW -->
+                        <div class="kpi-grid">
+                            <div class="kpi-card glass-card">
+                                <div class="kpi-icon-box primary">
+                                    <i class="fa-solid fa-boxes-stacked"></i>
+                                </div>
+                                <div class="kpi-details">
+                                    <span class="kpi-title">Available Equipment</span>
+                                    <h3 class="kpi-val" id="dashTotalEquipment">61 Items</h3>
+                                    <span class="kpi-sub positive"><i class="fa-solid fa-arrow-trend-up"></i> Across 13 Categories</span>
+                                </div>
                             </div>
 
-                            <div class="table-scroll-wrapper">
-                                <table class="report-table" id="reportDataTable">
-                                    <thead id="reportTableHead"></thead>
-                                    <tbody id="reportTableBody"></tbody>
-                                </table>
+                            <div class="kpi-card glass-card">
+                                <div class="kpi-icon-box emerald">
+                                    <i class="fa-solid fa-handshake"></i>
+                                </div>
+                                <div class="kpi-details">
+                                    <span class="kpi-title">Active Rentals</span>
+                                    <h3 class="kpi-val" id="dashActiveRentals">18 Exchanges</h3>
+                                    <span class="kpi-sub positive"><i class="fa-solid fa-check"></i> In Progress</span>
+                                </div>
+                            </div>
+
+                            <div class="kpi-card glass-card">
+                                <div class="kpi-icon-box gold">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <div class="kpi-details">
+                                    <span class="kpi-title">Campus Trust Engine</span>
+                                    <h3 class="kpi-val" id="dashTrustScore">92 / 100</h3>
+                                    <span class="kpi-sub warning"><i class="fa-solid fa-award"></i> Verified Gold Tier</span>
+                                </div>
+                            </div>
+
+                            <div class="kpi-card glass-card">
+                                <div class="kpi-icon-box cyan">
+                                    <i class="fa-solid fa-sack-dollar"></i>
+                                </div>
+                                <div class="kpi-details">
+                                    <span class="kpi-title">Platform Revenue</span>
+                                    <h3 class="kpi-val" id="dashRevenue">GH₵ 1,240.00</h3>
+                                    <span class="kpi-sub info"><i class="fa-solid fa-percent"></i> 10% Platform Fee</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FEATURED EQUIPMENT SECTION ON HOMEPAGE -->
+                        <div class="dash-section-header">
+                            <h3><i class="fa-solid fa-fire"></i> Featured Campus Equipment for Rent</h3>
+                            <button class="btn-text-link" onclick="switchTab('marketplace')">View All 61 Listings →</button>
+                        </div>
+
+                        <div class="listings-grid" id="dashFeaturedGrid">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+
+                    </div>
+
+                    <!-- ========================================================= -->
+                    <!-- TAB 1: EQUIPMENT MARKETPLACE -->
+                    <!-- ========================================================= -->
+                    <div id="tabMarketplace" class="tab-pane hidden">
+                        
+                        <!-- FILTER & SEARCH BAR AT TOP OF MARKETPLACE -->
+                        <div class="filter-toolbar glass-card">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="marketSearchInput" placeholder="Search equipment (e.g., Leica Total Station, Oscilloscope, Mining PPE, Dell XPS)..." oninput="handleMarketSearch()">
+                            </div>
+                            <div class="filter-controls">
+                                <select id="marketCategoryFilter" onchange="handleMarketSearch()">
+                                    <option value="all">All Categories</option>
+                                </select>
+                                <select id="marketConditionFilter" onchange="handleMarketSearch()">
+                                    <option value="all">All Conditions</option>
+                                    <option value="New">New</option>
+                                    <option value="Excellent">Excellent</option>
+                                    <option value="Good">Good</option>
+                                    <option value="Fair">Fair</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- CATEGORY QUICK PILLS -->
+                        <div class="category-pills" id="categoryPillsContainer"></div>
+
+                        <!-- LISTINGS GRID -->
+                        <div class="listings-grid" id="listingsGrid"></div>
+                    </div>
+
+                    <!-- ========================================================= -->
+                    <!-- TAB 2: MY RENTALS & REQUESTS -->
+                    <!-- ========================================================= -->
+                    <div id="tabMyRentals" class="tab-pane hidden">
+                        <div class="page-title-banner">
+                            <h2><i class="fa-solid fa-boxes-packing"></i> My Rentals & Rental Requests</h2>
+                            <p>Manage incoming requests for your equipment, track items you're borrowing, and process returns.</p>
+                        </div>
+
+                        <div class="rentals-layout">
+                            <!-- SECTION 1: INCOMING REQUESTS -->
+                            <div class="section-card glass-card">
+                                <div class="section-header">
+                                    <h3><i class="fa-solid fa-inbox"></i> Incoming Rental Requests (Lender Console)</h3>
+                                    <span class="badge-tag info" id="incomingCountTag">0 Pending</span>
+                                </div>
+                                <p class="section-desc">Borrowers requesting to rent your listed equipment. Approving locks dates and calculates net earnings after 10% platform commission.</p>
+                                <div id="incomingRequestsContainer" class="requests-list"></div>
+                            </div>
+
+                            <!-- SECTION 2: OUTGOING BORROW REQUESTS -->
+                            <div class="section-card glass-card">
+                                <div class="section-header">
+                                    <h3><i class="fa-solid fa-paper-plane"></i> My Submitted Borrow Requests</h3>
+                                    <span class="badge-tag info" id="outgoingCountTag">0 Submitted</span>
+                                </div>
+                                <p class="section-desc">Rental booking requests you have submitted to equipment owners across campus.</p>
+                                <div id="outgoingRequestsContainer" class="requests-list"></div>
+                            </div>
+
+                            <!-- SECTION 3: ACTIVE & COMPLETED TRANSACTIONS -->
+                            <div class="section-card glass-card">
+                                <div class="section-header">
+                                    <h3><i class="fa-solid fa-handshake"></i> Active & Completed Rental Transactions</h3>
+                                    <span class="badge-tag success" id="activeTxCountTag">0 Active</span>
+                                </div>
+                                <p class="section-desc">Track active equipment rentals, process returns, evaluate condition, and submit peer reviews.</p>
+                                <div id="activeLentContainer" class="requests-list"></div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-            </main>
+                    <!-- ========================================================= -->
+                    <!-- TAB 3: POST NEW EQUIPMENT LISTING -->
+                    <!-- ========================================================= -->
+                    <div id="tabListNew" class="tab-pane hidden">
+                        <div class="post-item-container">
+                            <div class="glass-card post-item-card">
+                                <div class="post-header">
+                                    <h2><i class="fa-solid fa-circle-plus"></i> List Equipment for Rent</h2>
+                                    <p>Monetize your underutilized academic tools, surveying gear, or hostel appliances safely.</p>
+                                </div>
+
+                                <form id="createListingForm" onsubmit="handleCreateListingSubmit(event)" class="form-stack">
+                                    <div class="form-group">
+                                        <label><i class="fa-solid fa-tag"></i> Listing Title</label>
+                                        <input type="text" id="postTitle" placeholder="e.g. Leica Total Station TS07 (FlexLine)" required>
+                                    </div>
+
+                                    <div class="grid-2col">
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-list"></i> Category</label>
+                                            <select id="postCategory" required></select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-layer-group"></i> Subcategory</label>
+                                            <input type="text" id="postSubcategory" placeholder="e.g. Total Station, Laptop, PPE" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid-3col">
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-industry"></i> Brand</label>
+                                            <input type="text" id="postBrand" placeholder="e.g. Leica, Dell, Fluke" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-barcode"></i> Model</label>
+                                            <input type="text" id="postModel" placeholder="e.g. TS07, XPS 15, 87V" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-calendar"></i> Purchase Year</label>
+                                            <input type="number" id="postYear" value="2023" min="2015" max="2026" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid-2col">
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-money-bill-wave"></i> Daily Rental Rate (GH₵/day)</label>
+                                            <input type="number" step="0.5" id="postRate" placeholder="e.g. 50.00" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-vault"></i> Security Deposit (GH₵)</label>
+                                            <input type="number" step="1.0" id="postDeposit" placeholder="e.g. 200.00" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid-2col">
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-star-half-stroke"></i> Equipment Condition</label>
+                                            <select id="postCondition" required>
+                                                <option value="New">New</option>
+                                                <option value="Excellent">Excellent</option>
+                                                <option value="Good" selected>Good</option>
+                                                <option value="Fair">Fair</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-location-dot"></i> Pickup Location / Hostel</label>
+                                            <input type="text" id="postLocation" placeholder="e.g. Chamber of Mines Hostel" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid-2col">
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-calendar-check"></i> Available From</label>
+                                            <input type="date" id="postStartDate" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label><i class="fa-solid fa-calendar-xmark"></i> Available Until</label>
+                                            <input type="date" id="postEndDate" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><i class="fa-solid fa-align-left"></i> Description & Included Accessories</label>
+                                        <textarea id="postDescription" rows="3" placeholder="Describe the equipment, technical specifications, and what accessories are included (tripod, cables, charger, etc.)..."></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><i class="fa-solid fa-image"></i> Equipment Photo URL / Image File</label>
+                                        <input type="text" id="postImageUrl" placeholder="assets/products/leica_total_station_ts07.png">
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary btn-block btn-lg">
+                                        <i class="fa-solid fa-paper-plane"></i> Publish Equipment Listing to Marketplace
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================= -->
+                    <!-- TAB 4: TRUST SCORE & USER PROFILE -->
+                    <!-- ========================================================= -->
+                    <div id="tabTrustProfile" class="tab-pane hidden">
+                        <div class="profile-layout">
+                            <!-- TRUST SCORE CARD -->
+                            <div class="glass-card trust-score-card">
+                                <h3><i class="fa-solid fa-shield-halved"></i> Campus Trust Score Engine</h3>
+                                <p class="trust-subtitle">Automated trust rating computed from review averages, completed exchanges, and damage history.</p>
+
+                                <div class="trust-gauge-area">
+                                    <div class="trust-gauge-circle">
+                                        <svg viewBox="0 0 100 100">
+                                            <circle class="gauge-bg" cx="50" cy="50" r="42"></circle>
+                                            <circle class="gauge-fill" id="trustGaugeFill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="30"></circle>
+                                        </svg>
+                                        <div class="gauge-text">
+                                            <div class="gauge-score" id="trustScoreValue">92</div>
+                                            <div class="gauge-label">out of 100</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="trust-tier-badge" id="trustTierBadge">
+                                        <i class="fa-solid fa-award"></i> Verified Gold Tier
+                                    </div>
+                                </div>
+
+                                <div class="trust-metrics-grid">
+                                    <div class="metric-box">
+                                        <div class="metric-val" id="trustAvgRating">4.9 ★</div>
+                                        <div class="metric-lbl">Peer Rating</div>
+                                    </div>
+                                    <div class="metric-box">
+                                        <div class="metric-val" id="trustTotalRentals">18</div>
+                                        <div class="metric-lbl">Completed Exchanges</div>
+                                    </div>
+                                    <div class="metric-box">
+                                        <div class="metric-val text-success" id="trustDamageClaims">0</div>
+                                        <div class="metric-lbl">Damage Claims</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PROFILE DETAILS & BOOKMARKS -->
+                            <div class="profile-right-stack">
+                                <div class="glass-card profile-details-card">
+                                    <h3><i class="fa-solid fa-id-card"></i> Student / Staff Credentials</h3>
+                                    <div class="profile-info-grid">
+                                        <div class="info-item">
+                                            <label>Full Name</label>
+                                            <span id="profName">Albert Boateng</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Institutional Email</label>
+                                            <span id="profEmail">ce-aavoryi8125@st.umat.edu.gh</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Index / Staff ID</label>
+                                            <span id="profStudentId">FCM.41.008.043.25</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Department</label>
+                                            <span id="profDept">Geomatic Engineering</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Hostel Residence</label>
+                                            <span id="profHostel">Chamber of Mines Hostel</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Verification Level</label>
+                                            <span class="badge-tag success" id="profVerification">Verified Student</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SAVED LISTINGS & WISHLIST -->
+                                <div class="glass-card saved-items-card">
+                                    <h3><i class="fa-solid fa-bookmark"></i> My Saved Equipment & Wishlist Alerts</h3>
+                                    <div class="saved-tabs">
+                                        <button class="tab-mini active" onclick="switchSavedTab('saved')">Saved Bookmarks</button>
+                                        <button class="tab-mini" onclick="switchSavedTab('wishlist')">Wishlist Keyword Alerts</button>
+                                    </div>
+                                    <div id="savedListingsContainer" class="saved-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================= -->
+                    <!-- TAB 5: CAMPUS INTELLIGENCE REPORTS -->
+                    <!-- ========================================================= -->
+                    <div id="tabReports" class="tab-pane hidden">
+                        <div class="reports-header-banner glass-card">
+                            <div>
+                                <h2><i class="fa-solid fa-chart-pie"></i> Campus Intelligence & Analytical Reports</h2>
+                                <p>15 Specialized SQL analytical reports providing data insights into revenue, top lenders, equipment utilization, and hostel density.</p>
+                            </div>
+                            <button class="btn btn-emerald" onclick="exportCurrentReportCSV()">
+                                <i class="fa-solid fa-file-csv"></i> Export Current Report to CSV
+                            </button>
+                        </div>
+
+                        <div class="reports-layout">
+                            <!-- REPORT SELECTOR SIDEBAR -->
+                            <div class="reports-selector-card glass-card">
+                                <h4>Select Business Intelligence Report</h4>
+                                <div class="reports-menu-list" id="reportsMenuList"></div>
+                            </div>
+
+                            <!-- REPORT DATA DISPLAY CANVAS -->
+                            <div class="reports-data-card glass-card">
+                                <div class="report-meta-header">
+                                    <h3 id="reportTitleDisplay">Report 01: Platform Revenue & Commission Summary</h3>
+                                    <span class="badge-tag info" id="reportRowsCount">0 Records</span>
+                                </div>
+
+                                <div class="table-scroll-wrapper">
+                                    <table class="report-table" id="reportDataTable">
+                                        <thead id="reportTableHead"></thead>
+                                        <tbody id="reportTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+
         </div>
 
     </div>
