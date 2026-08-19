@@ -56,7 +56,9 @@ def test_schema():
     expected_tables = [
         "users", "categories", "listings",
         "rental_requests", "rental_transactions",
-        "maintenance", "reviews", "wishlist", "saved_listings"
+        "maintenance", "reviews", "wishlist", "saved_listings",
+        "services", "service_orders", "service_reviews",
+        "user_wallets", "wallet_transactions", "notifications"
     ]
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     existing = {row[0] for row in cursor.fetchall()}

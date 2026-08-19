@@ -1,68 +1,68 @@
 from PySide6.QtWidgets import QCheckBox
 
 class ToggleSwitch(QCheckBox):
-def __init__(self, parent=None):
-super().__init__(parent)
-self.setObjectName("ThemeToggle")
-self.setFixedSize(60, 28)
-self.setStyleSheet("""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("ThemeToggle")
+        self.setFixedSize(60, 28)
+        self.setStyleSheet("""
 QCheckBox#ThemeToggle {
-spacing: 5px;
+    spacing: 5px;
 }
 QCheckBox#ThemeToggle::indicator {
-width: 50px;
-height: 28px;
+    width: 50px;
+    height: 28px;
 }
 QCheckBox#ThemeToggle::indicator:unchecked {
-image: url('assets/icons/dark_mode.svg');
+    image: url('assets/icons/dark_mode.svg');
 }
 QCheckBox#ThemeToggle::indicator:checked {
-image: url('assets/icons/light_mode.svg');
+    image: url('assets/icons/light_mode.svg');
 }
 """)
-self.stateChanged.connect(self.update_icon)
-self.update_icon()
+        self.stateChanged.connect(self.update_icon)
+        self.update_icon()
 
-def update_icon(self):
-if self.isChecked():
-self.setText('☀ Light')
-else:
-self.setText('🌙 Dark')
+    def update_icon(self):
+        if self.isChecked():
+            self.setText('☀ Light')
+        else:
+            self.setText('🌙 Dark')
 
 class CampusLinkTheme:
-DARK_MODE = True
+    DARK_MODE = True
 
-# Color Tokens
-DARK_BG = "#0A192F"
-DARK_CARD = "#1E293B"
-DARK_SIDEBAR = "#070F1E"
-DARK_TEXT_PRIMARY = "#F8FAFC"
-DARK_TEXT_MUTED = "#94A3B8"
-DARK_BORDER = "#334155"
+    # Color Tokens
+    DARK_BG = "#0A192F"
+    DARK_CARD = "#1E293B"
+    DARK_SIDEBAR = "#070F1E"
+    DARK_TEXT_PRIMARY = "#F8FAFC"
+    DARK_TEXT_MUTED = "#94A3B8"
+    DARK_BORDER = "#334155"
 
-LIGHT_BG = "#F8FAFC"
-LIGHT_CARD = "#FFFFFF"
-LIGHT_SIDEBAR = "#0A192F"
-LIGHT_TEXT_PRIMARY = "#0F172A"
-LIGHT_TEXT_MUTED = "#64748B"
-LIGHT_BORDER = "#E2E8F0"
+    LIGHT_BG = "#F8FAFC"
+    LIGHT_CARD = "#FFFFFF"
+    LIGHT_SIDEBAR = "#0A192F"
+    LIGHT_TEXT_PRIMARY = "#0F172A"
+    LIGHT_TEXT_MUTED = "#64748B"
+    LIGHT_BORDER = "#E2E8F0"
 
-PRIMARY = "#4A5DDE"
-PRIMARY_HOVER = "#3B4CB8"
-GOLD = "#D97706"
-GREEN = "#10B981"
-RED = "#EF4444"
+    PRIMARY = "#4A5DDE"
+    PRIMARY_HOVER = "#3B4CB8"
+    GOLD = "#D97706"
+    GREEN = "#10B981"
+    RED = "#EF4444"
 
-@classmethod
-def get_stylesheet(cls, dark=True):
-cls.DARK_MODE = dark
-bg = cls.DARK_BG if dark else cls.LIGHT_BG
-card = cls.DARK_CARD if dark else cls.LIGHT_CARD
-text = cls.DARK_TEXT_PRIMARY if dark else cls.LIGHT_TEXT_PRIMARY
-muted = cls.DARK_TEXT_MUTED if dark else cls.LIGHT_TEXT_MUTED
-border = cls.DARK_BORDER if dark else cls.LIGHT_BORDER
+    @classmethod
+    def get_stylesheet(cls, dark=True):
+        cls.DARK_MODE = dark
+        bg = cls.DARK_BG if dark else cls.LIGHT_BG
+        card = cls.DARK_CARD if dark else cls.LIGHT_CARD
+        text = cls.DARK_TEXT_PRIMARY if dark else cls.LIGHT_TEXT_PRIMARY
+        muted = cls.DARK_TEXT_MUTED if dark else cls.LIGHT_TEXT_MUTED
+        border = cls.DARK_BORDER if dark else cls.LIGHT_BORDER
 
-return f"""
+        return f"""
 QMainWindow, QDialog {{
 background-color: {bg};
 color: {text};

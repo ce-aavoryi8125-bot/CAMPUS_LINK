@@ -1,0 +1,23 @@
+{
+  "name": "campus-link",
+  "version": "2.0.0",
+  "description": "CampusLink — Peer-to-Peer Student Resource Marketplace",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py",
+    "dev": "python app.py",
+    "gui": "python main.py",
+    "tkinter": "python main_tkinter.py",
+    "seed": "python db_seeder.py",
+    "test": "python end_to_end_test.py"
+  },
+  "keywords": [
+    "campuslink",
+    "marketplace",
+    "umat",
+    "flask",
+    "p2p-rentals"
+  ],
+  "author": "Albert Boateng",
+  "license": "MIT"
+}

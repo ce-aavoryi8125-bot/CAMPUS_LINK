@@ -16,14 +16,18 @@ def create_tables():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    print("Creating tables...")
+    print("Creating/verifying CampusLink 2.0 tables...")
 
-    # 1. USERS Table (Updated with Authentication & Account Status)
+    # =========================================================================
+    # 1. CORE IDENTITY & TAXONOMY TABLES
+    # =========================================================================
+
+    # 1. USERS Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL CHECK(email LIKE '%@umat.edu.gh' OR email LIKE '%@student.umat.edu.gh' OR email LIKE '%@st.umat.edu.gh'),
+        email TEXT UNIQUE NOT NULL CHECK(email LIKE '%@umat.edu.gh' OR email LIKE '%@student.umat.edu.gh' OR email LIKE '%@st.umat.edu.gh' OR email LIKE '%@%'),
         password_hash TEXT NOT NULL,
         student_id TEXT UNIQUE,
         phone TEXT NOT NULL,
@@ -45,7 +49,11 @@ def create_tables():
     );
     """)
 
-    # 3. LISTINGS Table
+    # =========================================================================
+    # 2. EQUIPMENT MARKETPLACE & RENTAL LIFECYCLE TABLES
+    # =========================================================================
+
+    # 3. LISTINGS Table (Protective ON DELETE RESTRICT on owner and category)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS listings (
         listing_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,8 +74,8 @@ def create_tables():
         available_from TEXT NOT NULL, -- YYYY-MM-DD format
         available_until TEXT NOT NULL, -- YYYY-MM-DD format
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (owner_id) REFERENCES users (user_id) ON DELETE CASCADE,
-        FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE CASCADE,
+        FOREIGN KEY (owner_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+        FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE RESTRICT,
         CHECK(available_until >= available_from)
     );
     """)
@@ -84,13 +92,13 @@ def create_tables():
         status TEXT NOT NULL DEFAULT 'Pending' CHECK(status IN ('Pending', 'Approved', 'Rejected', 'Cancelled')),
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE CASCADE,
-        FOREIGN KEY (borrower_id) REFERENCES users (user_id) ON DELETE CASCADE,
+        FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE RESTRICT,
+        FOREIGN KEY (borrower_id) REFERENCES users (user_id) ON DELETE RESTRICT,
         CHECK(rent_end_date >= rent_start_date)
     );
     """)
 
-    # 5. RENTAL TRANSACTIONS Table
+    # 5. RENTAL TRANSACTIONS Table (Financial history protected by ON DELETE RESTRICT)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS rental_transactions (
         transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,9 +117,9 @@ def create_tables():
         rental_status TEXT NOT NULL DEFAULT 'Active' CHECK(rental_status IN ('Active', 'Returned', 'Overdue', 'Cancelled')),
         return_notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (request_id) REFERENCES rental_requests (request_id) ON DELETE CASCADE,
-        FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE CASCADE,
-        FOREIGN KEY (borrower_id) REFERENCES users (user_id) ON DELETE CASCADE
+        FOREIGN KEY (request_id) REFERENCES rental_requests (request_id) ON DELETE RESTRICT,
+        FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE RESTRICT,
+        FOREIGN KEY (borrower_id) REFERENCES users (user_id) ON DELETE RESTRICT
     );
     """)
 
@@ -126,8 +134,8 @@ def create_tables():
         status TEXT NOT NULL DEFAULT 'Pending' CHECK(status IN ('Pending', 'In Progress', 'Completed')),
         start_date TEXT NOT NULL, -- YYYY-MM-DD format
         end_date TEXT, -- YYYY-MM-DD format
-        FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE CASCADE,
-        FOREIGN KEY (reported_by) REFERENCES users (user_id) ON DELETE CASCADE
+        FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE RESTRICT,
+        FOREIGN KEY (reported_by) REFERENCES users (user_id) ON DELETE RESTRICT
     );
     """)
 
@@ -142,9 +150,9 @@ def create_tables():
         rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
         comment TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (transaction_id) REFERENCES rental_transactions (transaction_id) ON DELETE CASCADE,
-        FOREIGN KEY (reviewer_id) REFERENCES users (user_id) ON DELETE CASCADE,
-        FOREIGN KEY (reviewee_id) REFERENCES users (user_id) ON DELETE CASCADE
+        FOREIGN KEY (transaction_id) REFERENCES rental_transactions (transaction_id) ON DELETE RESTRICT,
+        FOREIGN KEY (reviewer_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+        FOREIGN KEY (reviewee_id) REFERENCES users (user_id) ON DELETE RESTRICT
     );
     """)
 
@@ -175,17 +183,148 @@ def create_tables():
     );
     """)
 
-    # Create indexes for optimization
+    # 10. NOTIFICATIONS Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS notifications (
+        notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        type TEXT NOT NULL DEFAULT 'info' CHECK(type IN ('info', 'success', 'warning', 'danger')),
+        is_read INTEGER NOT NULL DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+    );
+    """)
+
+    # =========================================================================
+    # 3. SERVICES & SKILLS MARKETPLACE TABLES (PHASE 1 EXPANSION)
+    # =========================================================================
+
+    # 11. SERVICES Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS services (
+        service_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        provider_id INTEGER NOT NULL,
+        category_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        subcategory TEXT NOT NULL,
+        pricing_model TEXT NOT NULL DEFAULT 'Fixed' CHECK(pricing_model IN ('Fixed', 'Hourly', 'StartingAt')),
+        price REAL NOT NULL CHECK(price >= 0),
+        delivery_time_days INTEGER NOT NULL DEFAULT 3 CHECK(delivery_time_days >= 1),
+        portfolio_urls TEXT,
+        status TEXT NOT NULL DEFAULT 'Active' CHECK(status IN ('Active', 'Paused', 'Delisted')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (provider_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+        FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE RESTRICT
+    );
+    """)
+
+    # 12. SERVICE ORDERS Table (Historical snapshot of provider_id)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS service_orders (
+        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        service_id INTEGER NOT NULL,
+        client_id INTEGER NOT NULL,
+        provider_id INTEGER NOT NULL,
+        requirements TEXT NOT NULL,
+        amount REAL NOT NULL CHECK(amount >= 0),
+        platform_fee REAL NOT NULL CHECK(platform_fee >= 0),
+        provider_earnings REAL NOT NULL CHECK(provider_earnings >= 0),
+        status TEXT NOT NULL DEFAULT 'Pending' CHECK(status IN ('Pending', 'Accepted', 'InProgress', 'Delivered', 'Completed', 'Cancelled', 'Disputed')),
+        escrow_status TEXT NOT NULL DEFAULT 'Held' CHECK(escrow_status IN ('Held', 'Released', 'Refunded', 'Deducted')),
+        due_date TEXT NOT NULL,
+        delivered_at DATETIME,
+        completed_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (service_id) REFERENCES services (service_id) ON DELETE RESTRICT,
+        FOREIGN KEY (client_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+        FOREIGN KEY (provider_id) REFERENCES users (user_id) ON DELETE RESTRICT
+    );
+    """)
+
+    # 13. SERVICE REVIEWS Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS service_reviews (
+        review_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER UNIQUE NOT NULL,
+        client_id INTEGER NOT NULL,
+        provider_id INTEGER NOT NULL,
+        rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+        comment TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (order_id) REFERENCES service_orders (order_id) ON DELETE RESTRICT,
+        FOREIGN KEY (client_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+        FOREIGN KEY (provider_id) REFERENCES users (user_id) ON DELETE RESTRICT
+    );
+    """)
+
+    # =========================================================================
+    # 4. WALLET, ESCROW & FINANCIAL LEDGER TABLES
+    # =========================================================================
+
+    # 14. USER WALLETS Table (Cached balances; 1-to-1 with users)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user_wallets (
+        wallet_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER UNIQUE NOT NULL,
+        available_balance REAL NOT NULL DEFAULT 0.00 CHECK(available_balance >= 0),
+        pending_balance REAL NOT NULL DEFAULT 0.00 CHECK(pending_balance >= 0),
+        locked_escrow REAL NOT NULL DEFAULT 0.00 CHECK(locked_escrow >= 0),
+        total_earned REAL NOT NULL DEFAULT 0.00 CHECK(total_earned >= 0),
+        total_withdrawn REAL NOT NULL DEFAULT 0.00 CHECK(total_withdrawn >= 0),
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE RESTRICT
+    );
+    """)
+
+    # 15. WALLET TRANSACTIONS Table (Authoritative Financial Ledger)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS wallet_transactions (
+        wallet_tx_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        wallet_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        entry_type TEXT NOT NULL CHECK(entry_type IN ('CREDIT', 'DEBIT')),
+        tx_type TEXT NOT NULL CHECK(tx_type IN ('RentalIncome', 'ServiceIncome', 'DepositEscrowHold', 'DepositRefund', 'DamageDeduction', 'PlatformCommission', 'PayoutWithdrawal')),
+        amount REAL NOT NULL CHECK(amount >= 0),
+        reference_type TEXT NOT NULL,
+        reference_id INTEGER NOT NULL,
+        idempotency_key TEXT UNIQUE NOT NULL,
+        status TEXT NOT NULL DEFAULT 'Completed' CHECK(status IN ('Pending', 'Completed', 'Failed')),
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (wallet_id) REFERENCES user_wallets (wallet_id) ON DELETE RESTRICT,
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE RESTRICT
+    );
+    """)
+
+    # =========================================================================
+    # 5. PERFORMANCE & INTEGRITY INDEXES
+    # =========================================================================
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_listings_owner ON listings(owner_id);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_listings_category ON listings(category_id);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_requests_listing ON rental_requests(listing_id);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_requests_borrower ON rental_requests(borrower_id);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_transactions_request ON rental_transactions(request_id);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_reviews_transaction ON reviews(transaction_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);")
+
+    # New Phase 1 Indexes
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_services_provider ON services(provider_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_services_category ON services(category_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_orders_service ON service_orders(service_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_orders_client ON service_orders(client_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_orders_provider ON service_orders(provider_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_wallets_user ON user_wallets(user_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_wallet_tx_wallet ON wallet_transactions(wallet_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_wallet_tx_user ON wallet_transactions(user_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_wallet_tx_idempotency ON wallet_transactions(idempotency_key);")
 
     conn.commit()
     conn.close()
-    print("Tables created successfully.")
+    print("All 15 CampusLink 2.0 tables and indexes verified successfully.")
 
 def drop_column_compatibly(table_name, column_name):
     """
@@ -194,31 +333,22 @@ def drop_column_compatibly(table_name, column_name):
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    
-    # Get SQLite version
     cursor.execute("SELECT sqlite_version();")
     ver_str = cursor.fetchone()[0]
     ver = tuple(map(int, ver_str.split('.')))
     
-    print(f"SQLite Version: {ver_str}")
-    
     if ver >= (3, 35, 0):
-        print(f"Executing: ALTER TABLE {table_name} DROP COLUMN {column_name} (native)")
         cursor.execute(f"ALTER TABLE {table_name} DROP COLUMN {column_name};")
     else:
-        print(f"Emulating column drop for {table_name}.{column_name} via table recreation")
         cursor.execute(f"PRAGMA table_info({table_name});")
         columns = cursor.fetchall()
-        
         cols_to_keep = [col[1] for col in columns if col[1] != column_name]
         
         if len(cols_to_keep) == len(columns):
-            print(f"Column '{column_name}' not found in table '{table_name}'. Skipping.")
             conn.close()
             return
             
         temp_table = f"{table_name}_temp"
-        
         cols_def = []
         for col in columns:
             name_c = col[1]
@@ -226,22 +356,18 @@ def drop_column_compatibly(table_name, column_name):
             notnull_c = "NOT NULL" if col[3] else ""
             default_c = f"DEFAULT {col[4]}" if col[4] is not None else ""
             pk_c = "PRIMARY KEY" if col[5] else ""
-            
             if name_c != column_name:
                 cols_def.append(f"{name_c} {type_c} {pk_c} {notnull_c} {default_c}".strip())
         
         sql_fields = ", ".join(cols_def)
         cursor.execute(f"CREATE TABLE {temp_table} ({sql_fields});")
-            
         cols_str = ", ".join(cols_to_keep)
         cursor.execute(f"INSERT INTO {temp_table} ({cols_str}) SELECT {cols_str} FROM {table_name};")
-        
         cursor.execute(f"DROP TABLE {table_name};")
         cursor.execute(f"ALTER TABLE {temp_table} RENAME TO {table_name};")
         
     conn.commit()
     conn.close()
-    print(f"Column {column_name} dropped successfully from {table_name}.")
 
 if __name__ == "__main__":
     create_tables()
