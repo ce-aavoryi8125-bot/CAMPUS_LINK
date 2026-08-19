@@ -1,12 +1,16 @@
--- CampusLink MySQL Database Schema DDL
--- Target: MySQL 5.7+ / MySQL 8.0+ / MariaDB
--- Platform: Peer-to-Peer Student Resource Marketplace (UMaT, Ghana)
+-- CampusLink 2.0 MySQL Database Schema DDL
+-- Target: MySQL 8.0+ / MariaDB 10.5+
+-- Platform: Peer-to-Peer Student Resource & Services Marketplace (UMaT, Ghana)
 
 CREATE DATABASE IF NOT EXISTS campuslink_umat
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
 
 USE campuslink_umat;
+
+-- =============================================================================
+-- 1. CORE IDENTITY & TAXONOMY TABLES
+-- =============================================================================
 
 -- 1. USERS Table
 CREATE TABLE IF NOT EXISTS users (
@@ -32,7 +36,11 @@ CREATE TABLE IF NOT EXISTS categories (
     description TEXT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 3. LISTINGS Table
+-- =============================================================================
+-- 2. EQUIPMENT MARKETPLACE & RENTAL LIFECYCLE TABLES
+-- =============================================================================
+
+-- 3. LISTINGS Table (Protected with ON DELETE RESTRICT on owner and category)
 CREATE TABLE IF NOT EXISTS listings (
     listing_id INT AUTO_INCREMENT PRIMARY KEY,
     owner_id INT NOT NULL,
@@ -52,8 +60,8 @@ CREATE TABLE IF NOT EXISTS listings (
     available_from DATE NOT NULL,
     available_until DATE NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (owner_id) REFERENCES users (user_id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE CASCADE,
+    FOREIGN KEY (owner_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE RESTRICT,
     CONSTRAINT chk_rate_positive CHECK (rental_rate_per_day >= 0),
     CONSTRAINT chk_deposit_positive CHECK (deposit_amount >= 0),
     CONSTRAINT chk_dates_valid CHECK (available_until >= available_from)
@@ -70,12 +78,12 @@ CREATE TABLE IF NOT EXISTS rental_requests (
     status ENUM('Pending', 'Approved', 'Rejected', 'Cancelled') NOT NULL DEFAULT 'Pending',
     notes TEXT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE CASCADE,
-    FOREIGN KEY (borrower_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE RESTRICT,
+    FOREIGN KEY (borrower_id) REFERENCES users (user_id) ON DELETE RESTRICT,
     CONSTRAINT chk_rent_dates CHECK (rent_end_date >= rent_start_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 5. RENTAL TRANSACTIONS Table
+-- 5. RENTAL TRANSACTIONS Table (Protected financial history)
 CREATE TABLE IF NOT EXISTS rental_transactions (
     transaction_id INT AUTO_INCREMENT PRIMARY KEY,
     request_id INT UNIQUE NOT NULL,
@@ -93,11 +101,13 @@ CREATE TABLE IF NOT EXISTS rental_transactions (
     rental_status ENUM('Active', 'Returned', 'Overdue', 'Cancelled') NOT NULL DEFAULT 'Active',
     return_notes TEXT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (request_id) REFERENCES rental_requests (request_id) ON DELETE CASCADE,
-    FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE CASCADE,
-    FOREIGN KEY (borrower_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (request_id) REFERENCES rental_requests (request_id) ON DELETE RESTRICT,
+    FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE RESTRICT,
+    FOREIGN KEY (borrower_id) REFERENCES users (user_id) ON DELETE RESTRICT,
     CONSTRAINT chk_total_days CHECK (total_days > 0),
-    CONSTRAINT chk_gross_positive CHECK (gross_amount >= 0)
+    CONSTRAINT chk_gross_positive CHECK (gross_amount >= 0),
+    CONSTRAINT chk_comm_positive CHECK (commission_amount >= 0),
+    CONSTRAINT chk_earnings_positive CHECK (owner_earnings >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 6. MAINTENANCE Table
@@ -110,8 +120,8 @@ CREATE TABLE IF NOT EXISTS maintenance (
     status ENUM('Pending', 'In Progress', 'Completed') NOT NULL DEFAULT 'Pending',
     start_date DATE NOT NULL,
     end_date DATE NULL,
-    FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE CASCADE,
-    FOREIGN KEY (reported_by) REFERENCES users (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (listing_id) REFERENCES listings (listing_id) ON DELETE RESTRICT,
+    FOREIGN KEY (reported_by) REFERENCES users (user_id) ON DELETE RESTRICT,
     CONSTRAINT chk_cost_positive CHECK (cost >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -125,9 +135,9 @@ CREATE TABLE IF NOT EXISTS reviews (
     rating INT NOT NULL,
     comment TEXT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (transaction_id) REFERENCES rental_transactions (transaction_id) ON DELETE CASCADE,
-    FOREIGN KEY (reviewer_id) REFERENCES users (user_id) ON DELETE CASCADE,
-    FOREIGN KEY (reviewee_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (transaction_id) REFERENCES rental_transactions (transaction_id) ON DELETE RESTRICT,
+    FOREIGN KEY (reviewer_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (reviewee_id) REFERENCES users (user_id) ON DELETE RESTRICT,
     CONSTRAINT chk_rating_range CHECK (rating >= 1 AND rating <= 5)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -154,6 +164,123 @@ CREATE TABLE IF NOT EXISTS saved_listings (
     UNIQUE KEY uq_saved (user_id, listing_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 10. NOTIFICATIONS Table
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type ENUM('info', 'success', 'warning', 'danger') NOT NULL DEFAULT 'info',
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =============================================================================
+-- 3. SERVICES & SKILLS MARKETPLACE TABLES (PHASE 1 EXPANSION)
+-- =============================================================================
+
+-- 11. SERVICES Table
+CREATE TABLE IF NOT EXISTS services (
+    service_id INT AUTO_INCREMENT PRIMARY KEY,
+    provider_id INT NOT NULL,
+    category_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    subcategory VARCHAR(150) NOT NULL,
+    pricing_model ENUM('Fixed', 'Hourly', 'StartingAt') NOT NULL DEFAULT 'Fixed',
+    price DECIMAL(10,2) NOT NULL,
+    delivery_time_days INT NOT NULL DEFAULT 3,
+    portfolio_urls TEXT NULL,
+    status ENUM('Active', 'Paused', 'Delisted') NOT NULL DEFAULT 'Active',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (provider_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE RESTRICT,
+    CONSTRAINT chk_service_price_pos CHECK (price >= 0),
+    CONSTRAINT chk_service_days CHECK (delivery_time_days >= 1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 12. SERVICE ORDERS Table (Historical snapshot of provider_id)
+CREATE TABLE IF NOT EXISTS service_orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    service_id INT NOT NULL,
+    client_id INT NOT NULL,
+    provider_id INT NOT NULL,
+    requirements TEXT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    platform_fee DECIMAL(10,2) NOT NULL,
+    provider_earnings DECIMAL(10,2) NOT NULL,
+    status ENUM('Pending', 'Accepted', 'InProgress', 'Delivered', 'Completed', 'Cancelled', 'Disputed') NOT NULL DEFAULT 'Pending',
+    escrow_status ENUM('Held', 'Released', 'Refunded', 'Deducted') NOT NULL DEFAULT 'Held',
+    due_date DATE NOT NULL,
+    delivered_at DATETIME NULL,
+    completed_at DATETIME NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (service_id) REFERENCES services (service_id) ON DELETE RESTRICT,
+    FOREIGN KEY (client_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (provider_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    CONSTRAINT chk_order_amt_pos CHECK (amount >= 0),
+    CONSTRAINT chk_order_fee_pos CHECK (platform_fee >= 0),
+    CONSTRAINT chk_order_earn_pos CHECK (provider_earnings >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 13. SERVICE REVIEWS Table
+CREATE TABLE IF NOT EXISTS service_reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT UNIQUE NOT NULL,
+    client_id INT NOT NULL,
+    provider_id INT NOT NULL,
+    rating INT NOT NULL,
+    comment TEXT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES service_orders (order_id) ON DELETE RESTRICT,
+    FOREIGN KEY (client_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (provider_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    CONSTRAINT chk_service_rating CHECK (rating >= 1 AND rating <= 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =============================================================================
+-- 4. WALLET, ESCROW & FINANCIAL LEDGER TABLES
+-- =============================================================================
+
+-- 14. USER WALLETS Table (Cached balance representation; 1-to-1 with users)
+CREATE TABLE IF NOT EXISTS user_wallets (
+    wallet_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE NOT NULL,
+    available_balance DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    pending_balance DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    locked_escrow DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    total_earned DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    total_withdrawn DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    CONSTRAINT chk_wallet_avail_pos CHECK (available_balance >= 0),
+    CONSTRAINT chk_wallet_pending_pos CHECK (pending_balance >= 0),
+    CONSTRAINT chk_wallet_escrow_pos CHECK (locked_escrow >= 0),
+    CONSTRAINT chk_wallet_earned_pos CHECK (total_earned >= 0),
+    CONSTRAINT chk_wallet_withdrawn_pos CHECK (total_withdrawn >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 15. WALLET TRANSACTIONS Table (AUTHORITATIVE FINANCIAL LEDGER)
+CREATE TABLE IF NOT EXISTS wallet_transactions (
+    wallet_tx_id INT AUTO_INCREMENT PRIMARY KEY,
+    wallet_id INT NOT NULL,
+    user_id INT NOT NULL,
+    entry_type ENUM('CREDIT', 'DEBIT') NOT NULL,
+    tx_type ENUM('RentalIncome', 'ServiceIncome', 'DepositEscrowHold', 'DepositRefund', 'DamageDeduction', 'PlatformCommission', 'PayoutWithdrawal') NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    reference_type VARCHAR(50) NOT NULL,
+    reference_id INT NOT NULL,
+    idempotency_key VARCHAR(120) UNIQUE NOT NULL,
+    status ENUM('Pending', 'Completed', 'Failed') NOT NULL DEFAULT 'Completed',
+    notes TEXT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (wallet_id) REFERENCES user_wallets (wallet_id) ON DELETE RESTRICT,
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    CONSTRAINT chk_ledger_amt_pos CHECK (amount >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Performance & Query Optimization Indexes
 CREATE INDEX idx_listings_owner ON listings(owner_id);
 CREATE INDEX idx_listings_category ON listings(category_id);
@@ -161,3 +288,14 @@ CREATE INDEX idx_requests_listing ON rental_requests(listing_id);
 CREATE INDEX idx_requests_borrower ON rental_requests(borrower_id);
 CREATE INDEX idx_transactions_request ON rental_transactions(request_id);
 CREATE INDEX idx_reviews_transaction ON reviews(transaction_id);
+CREATE INDEX idx_notifications_user ON notifications(user_id);
+
+CREATE INDEX idx_services_provider ON services(provider_id);
+CREATE INDEX idx_services_category ON services(category_id);
+CREATE INDEX idx_orders_service ON service_orders(service_id);
+CREATE INDEX idx_orders_client ON service_orders(client_id);
+CREATE INDEX idx_orders_provider ON service_orders(provider_id);
+CREATE INDEX idx_wallets_user ON user_wallets(user_id);
+CREATE INDEX idx_wallet_tx_wallet ON wallet_transactions(wallet_id);
+CREATE INDEX idx_wallet_tx_user ON wallet_transactions(user_id);
+CREATE INDEX idx_wallet_tx_idempotency ON wallet_transactions(idempotency_key);
